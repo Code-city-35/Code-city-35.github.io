@@ -1,0 +1,178 @@
+/* ============================================================
+   rules.css — стили для страницы правил
+   ============================================================ */
+
+.rules-section {
+    padding: 40px 0 60px;
+    min-height: 70vh;
+}
+
+.rules-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow: 0 0 60px #00ff4111;
+}
+
+.rules-title {
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    color: #00ff41;
+    letter-spacing: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 4px;
+}
+
+.rules-subtitle {
+    text-align: center;
+    color: #8aa3c0;
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+.rules-content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.rule-block {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 20px;
+}
+
+.rule-block:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.rule-block h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f0c45a;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.rule-block p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #b0c7e0;
+    margin-bottom: 8px;
+}
+
+.rule-block ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 8px 0 12px 0;
+}
+
+.rule-block ul li {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #b0c7e0;
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.rule-block ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #00ff41;
+    opacity: 0.5;
+}
+
+.rule-block a {
+    color: #00ff41;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+    transition: 0.2s;
+}
+
+.rule-block a:hover {
+    border-bottom-color: #00ff41;
+}
+
+.rules-footer-note {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #1f1f1f;
+    text-align: center;
+    font-size: 13px;
+    color: #4a5a6e;
+}
+
+.rules-footer-note p {
+    margin-bottom: 4px;
+}
+
+/* ============================================================
+   ФУТЕР (стили для нового футера)
+   ============================================================ */
+.main-footer .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #1f1f1f;
+    margin-bottom: 16px;
+}
+
+.main-footer .footer-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #00ff41;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.main-footer .footer-copy {
+    font-size: 13px;
+    color: #4a5a6e;
+    margin-top: 4px;
+}
+
+.main-footer .footer-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8aa3c0;
+    margin-bottom: 6px;
+}
+
+.main-footer .footer-grid a {
+    display: block;
+    color: #4a5a6e;
+    font-size: 13px;
+    text-decoration: none;
+    transition: 0.2s;
+    margin-bottom: 4px;
+}
+
+.main-footer .footer-grid a:hover {
+    color: #00ff41;
+}
+
+.main-footer .footer-bottom .footer-small {
+    font-size: 11px;
+    color: #4a5a6e;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Адаптив */
+@media (max-width: 600px) {
+    .rules-container {
+        padding: 24px 18px;
+    }
+    .rules-title {
+        font-size: 24px;
+    }
+    .rule-block h2 {
+        font-size: 18px;
+    }
+}

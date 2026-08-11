@@ -1,0 +1,262 @@
+/* ============================================================
+   pass.css — страница пропуска (без закорючки)
+   ============================================================ */
+
+.pass-section {
+    padding: 40px 0 60px;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.pass-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 40px 32px;
+    box-shadow: 0 0 60px #00ff4111;
+}
+
+.pass-title {
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+    color: #00ff41;
+    letter-spacing: 2px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.pass-subtitle {
+    text-align: center;
+    color: #8aa3c0;
+    font-size: 13px;
+    margin-top: 4px;
+    margin-bottom: 24px;
+}
+
+.pass-form .form-group {
+    margin-bottom: 14px;
+}
+
+.pass-form .form-group label {
+    display: block;
+    color: #b0c7e0;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.pass-form .form-group input,
+.pass-form .form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #0a0a0a;
+    color: #00ff41;
+    font-size: 15px;
+    font-family: 'Share Tech Mono', monospace;
+    outline: none;
+    transition: 0.2s;
+}
+
+.pass-form .form-group input:focus,
+.pass-form .form-group select:focus {
+    border-color: #00ff41;
+}
+
+.pass-form button {
+    width: 100%;
+    margin-top: 6px;
+}
+
+/* ============================================================
+   КАРТОЧКА ПРОПУСКА
+   ============================================================ */
+.pass-card {
+    margin-top: 28px;
+    padding: 24px 20px;
+    border: 2px solid #00ff41;
+    border-radius: 16px;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px #00ff4111;
+}
+
+.pass-card .pass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1f1f1f;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.pass-card .pass-header .logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #00ff41;
+}
+
+.pass-card .pass-header .stamp {
+    font-size: 12px;
+    color: #4a5a6e;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.pass-card .pass-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    margin-bottom: 12px;
+}
+
+.pass-card .pass-body .field {
+    display: flex;
+    flex-direction: column;
+}
+
+.pass-card .pass-body .field .label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #4a5a6e;
+    letter-spacing: 0.5px;
+}
+
+.pass-card .pass-body .field .value {
+    font-size: 14px;
+    color: #00ff41;
+    font-weight: 600;
+    font-family: 'Share Tech Mono', monospace;
+    word-break: break-word;
+}
+
+.pass-card .pass-body .field.full {
+    grid-column: 1 / -1;
+}
+
+.pass-card .pass-footer {
+    border-top: 1px solid #1f1f1f;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #4a5a6e;
+}
+
+.pass-card .pass-footer .signature {
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ff41;
+    opacity: 0.6;
+}
+
+/* ============================================================
+   ПОДПИСЬ (только текст, без закорючки)
+   ============================================================ */
+.pass-card .signature-line {
+    margin-top: 6px;
+    border-top: 1px solid rgba(0, 255, 65, 0.2);
+    padding-top: 6px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: #4a5a6e;
+}
+
+.pass-card .signature-line .signature-drawing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.pass-card .signature-line .signature-name {
+    font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    font-size: 22px;
+    color: #00ff41;
+    opacity: 0.9;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+.pass-card .signature-line .signature-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #4a5a6e;
+    margin-top: 2px;
+}
+
+/* ============================================================
+   СНОСКА ДЛЯ СОТРУДНИКОВ
+   ============================================================ */
+.pass-card .pass-disclaimer {
+    font-size: 8px;
+    color: #4a5a6e;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 8px;
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    letter-spacing: 0.3px;
+    opacity: 0.8;
+}
+
+.pass-card .pass-disclaimer span {
+    color: #00ff41;
+    font-weight: 600;
+}
+
+/* ============================================================
+   КНОПКИ ДЕЙСТВИЙ
+   ============================================================ */
+.pass-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pass-actions button {
+    padding: 8px 20px;
+    border-radius: 40px;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #b0c7e0;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pass-actions button:hover {
+    border-color: #00ff41;
+    color: #fff;
+}
+
+/* ============================================================
+   СТИЛИ ДЛЯ ПЕЧАТИ
+   ============================================================ */
+@media print {
+    body { background: #fff !important; }
+    .main-header, .main-footer, .pass-actions, .pass-form, .pass-title, .pass-subtitle {
+        display: none !important;
+    }
+    .pass-card {
+        border-color: #000 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+    .pass-card .pass-header .logo { color: #000 !important; }
+    .pass-card .pass-body .field .value { color: #000 !important; }
+    .pass-card .signature-line .signature-name { color: #000 !important; }
+    .pass-card .signature-line .signature-label { color: #000 !important; }
+    .pass-card .pass-disclaimer { color: #555 !important; border-top-color: #ccc !important; }
+    .pass-card .pass-disclaimer span { color: #000 !important; font-weight: 700; }
+}

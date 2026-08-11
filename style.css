@@ -1,0 +1,256 @@
+/* ============================================================
+   style.css — общий стиль проекта «Тайник 35»
+   ============================================================ */
+
+/* Базовый сброс и шрифт */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0a0a;
+    color: #00ff41;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-image: radial-gradient(circle at 20% 30%, rgba(0,255,65,0.03) 0%, transparent 60%);
+}
+
+/* ============================================================
+   Терминал
+   ============================================================ */
+.terminal {
+    max-width: 900px;
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #00ff4133;
+    border-radius: 12px;
+    box-shadow: 0 0 60px #00ff4111, inset 0 0 30px #00ff4108;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background: #1a1a1a;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+
+.terminal-title {
+    margin-left: 12px;
+    color: #4a5a6e;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.terminal-body {
+    padding: 30px 28px;
+    min-height: 400px;
+    position: relative;
+}
+
+/* ============================================================
+   Терминальный текст
+   ============================================================ */
+.terminal-body .line {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    font-size: 16px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.terminal-body .line.dim {
+    color: #4a5a6e;
+}
+
+.terminal-body .line .highlight {
+    color: #ffb000;
+}
+
+.terminal-body .line .error {
+    color: #ff0040;
+}
+
+.terminal-body .line .success {
+    color: #6fcf97;
+}
+
+.terminal-body .prompt {
+    color: #00ff41;
+    font-weight: bold;
+}
+
+.terminal-body .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #00ff41;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* Кнопки в терминальном стиле */
+.terminal-btn {
+    background: transparent;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    padding: 12px 28px;
+    font-family: inherit;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 4px;
+    margin-top: 16px;
+    display: inline-block;
+    text-decoration: none;
+}
+.terminal-btn:hover {
+    background: #00ff41;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px #00ff4144;
+}
+.terminal-btn.danger {
+    border-color: #ff0040;
+    color: #ff0040;
+}
+.terminal-btn.danger:hover {
+    background: #ff0040;
+    color: #0a0a0a;
+}
+
+/* Ссылки в терминале */
+.terminal-link {
+    color: #00ff41;
+    text-decoration: none;
+    border-bottom: 1px dashed #00ff4144;
+    transition: 0.2s;
+}
+.terminal-link:hover {
+    border-bottom-color: #00ff41;
+}
+
+/* ============================================================
+   Список боксов (каталог)
+   ============================================================ */
+.box-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.box-item {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    transition: 0.2s;
+}
+.box-item:hover {
+    border-color: #00ff4144;
+}
+
+.box-item .info .title {
+    font-size: 18px;
+    font-weight: bold;
+}
+.box-item .info .desc {
+    color: #8aa3c0;
+    font-size: 14px;
+}
+.box-item .info .level {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-top: 4px;
+}
+.level.easy { background: #6fcf9722; color: #6fcf97; }
+.level.medium { background: #f0c45a22; color: #f0c45a; }
+.level.hard { background: #ff004022; color: #ff0040; }
+
+.box-item .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.box-item .price {
+    font-size: 18px;
+    font-weight: bold;
+}
+.price.free { color: #6fcf97; }
+.price.paid { color: #ffb000; }
+
+/* ============================================================
+   Страница бокса (игровая)
+   ============================================================ */
+.clue-block {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+}
+.clue-block .clue-label {
+    color: #4a5a6e;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.clue-block .clue-content {
+    margin-top: 8px;
+    font-size: 16px;
+}
+.clue-block .clue-content img {
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #2a2a2a;
+}
+
+/* ============================================================
+   Адаптив
+   ============================================================ */
+@media (max-width: 600px) {
+    .terminal-body {
+        padding: 20px 16px;
+    }
+    .box-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .box-item .actions {
+        justify-content: flex-start;
+    }
+}

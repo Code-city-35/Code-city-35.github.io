@@ -1,0 +1,327 @@
+/* ============================================================
+   terminal.css — стили для терминального интерфейса
+   ============================================================ */
+
+/* Терминальный блок */
+.terminal {
+    max-width: 900px;
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #00ff4133;
+    border-radius: 12px;
+    box-shadow: 0 0 60px #00ff4111, inset 0 0 30px #00ff4108;
+    overflow: hidden;
+    margin: 20px auto;
+}
+
+.terminal-header {
+    background: #1a1a1a;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+
+.terminal-title {
+    margin-left: 12px;
+    color: #4a5a6e;
+    font-size: 14px;
+    letter-spacing: 1px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.terminal-body {
+    padding: 30px 28px;
+    min-height: 400px;
+    position: relative;
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ff41;
+}
+
+/* Терминальные строки */
+.terminal-body .line {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    font-size: 16px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.terminal-body .line.dim {
+    color: #4a5a6e;
+}
+
+.terminal-body .line .highlight {
+    color: #ffb000;
+}
+
+.terminal-body .line .error {
+    color: #ff0040;
+}
+
+.terminal-body .line .success {
+    color: #6fcf97;
+}
+
+.terminal-body .prompt {
+    color: #00ff41;
+    font-weight: bold;
+}
+
+.terminal-body .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #00ff41;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* Терминальные кнопки */
+.terminal-btn {
+    background: transparent;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    padding: 12px 28px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 4px;
+    display: inline-block;
+    text-decoration: none;
+}
+.terminal-btn:hover {
+    background: #00ff41;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px #00ff4144;
+}
+.terminal-btn.danger {
+    border-color: #ff0040;
+    color: #ff0040;
+}
+.terminal-btn.danger:hover {
+    background: #ff0040;
+    color: #0a0a0a;
+}
+
+/* Терминальные ссылки */
+.terminal-link {
+    color: #00ff41;
+    text-decoration: none;
+    border-bottom: 1px dashed #00ff4144;
+    transition: 0.2s;
+}
+.terminal-link:hover {
+    border-bottom-color: #00ff41;
+}
+
+/* Блок улики */
+.clue-block {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+}
+.clue-block .clue-label {
+    color: #4a5a6e;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.clue-block .clue-content {
+    margin-top: 8px;
+    font-size: 16px;
+}
+.clue-block .clue-content img {
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #2a2a2a;
+}
+
+/* Поле ввода в терминале */
+.terminal-body .input-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.terminal-body .input-row input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    color: #00ff41;
+    padding: 10px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    border-radius: 4px;
+    min-width: 140px;
+}
+.terminal-body .input-row input:focus {
+    border-color: #00ff41;
+    outline: none;
+}
+.terminal-body .input-row input:disabled {
+    opacity: 0.5;
+}
+
+/* Список боксов в каталоге */
+.box-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+.box-item {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    transition: 0.2s;
+}
+.box-item:hover {
+    border-color: #00ff4144;
+}
+.box-item .info .title {
+    font-size: 18px;
+    font-weight: bold;
+}
+.box-item .info .desc {
+    color: #8aa3c0;
+    font-size: 14px;
+}
+.box-item .info .level {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-top: 4px;
+}
+.level.easy { background: #6fcf9722; color: #6fcf97; }
+.level.medium { background: #f0c45a22; color: #f0c45a; }
+.level.hard { background: #ff004022; color: #ff0040; }
+
+.box-item .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.box-item .price {
+    font-size: 18px;
+    font-weight: bold;
+}
+.price.free { color: #6fcf97; }
+.price.paid { color: #ffb000; }
+
+/* Адаптив для терминала */
+@media (max-width: 600px) {
+    .terminal-body {
+        padding: 20px 16px;
+    }
+    .box-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .box-item .actions {
+        justify-content: flex-start;
+    }
+}
+
+/* ============================================================
+   БАННЕР-СОГЛАСИЕ
+   ============================================================ */
+.consent-banner {
+    background: rgba(255, 215, 0, 0.06);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.consent-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.consent-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.consent-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0c45a;
+    letter-spacing: 0.3px;
+}
+
+.consent-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #b0c7e0;
+}
+
+.consent-text a {
+    color: #00ff41;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+    transition: 0.2s;
+}
+
+.consent-text a:hover {
+    border-bottom-color: #00ff41;
+}
+
+.consent-text strong {
+    color: #fff;
+}
+
+.consent-warning {
+    color: #8aa3c0;
+    font-size: 12px;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 480px) {
+    .consent-banner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 16px;
+    }
+    .consent-icon {
+        margin-top: 0;
+    }
+}

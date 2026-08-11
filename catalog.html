@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог — Код города</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/terminal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">🕵 Код города</div>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="catalog.html" class="active">Каталог</a>
+                <a href="pass.html">Пропуск</a>
+            </nav>
+        </div>
+    </header>
+
+        <!-- БАННЕР-СОГЛАСИЕ -->
+<div class="consent-banner">
+    <span class="consent-icon">⚖️</span>
+    <div class="consent-content">
+        <span class="consent-title">ВНИМАНИЕ: ПОДТВЕРЖДЕНИЕ СОГЛАСИЯ</span>
+        <span class="consent-text">
+            Начиная любой квест на этом сайте, вы автоматически подтверждаете, что 
+            <strong>ознакомились с <a href="rules.html">правилами игры</a></strong>, 
+            принимаете их в полном объёме и соглашаетесь нести 
+            <strong>личную ответственность</strong> за свои действия во время прохождения квеста.
+            <br>
+            <span class="consent-warning">⚠️ Если вы не согласны с правилами — пожалуйста, не начинайте игру.</span>
+        </span>
+    </div>
+</div>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="terminal-title">КОД ГОРОДА — каталог</span>
+        </div>
+
+        <div class="terminal-body" id="catalogList">
+            <!-- Загружается из main.js -->
+        </div>
+    </div>
+
+    <script src="js/boxes-data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
