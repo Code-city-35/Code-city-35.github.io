@@ -3,107 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тайник 35 — городской квест</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Код города — главная</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo">🕵 Код города</div>
+            <div class="logo">
+                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:50px; width:auto;">
+            </div>
             <nav>
-                <a href="index.html" class="active">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="pass.html">Пропуск</a>
+                <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html" class="active">Главная</a>
+                    <a href="catalog.html">Каталог</a>
+                    <a href="pass.html">Пропуск</a>
+                    <a href="rules.html">Правила</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
+                </div>
             </nav>
         </div>
     </header>
 
     <main>
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <div class="hero-badge">🔐 ПРИКЛЮЧЕНИЯ ЖДУТ ИМЕННО ТЕБЯ</div>
-                    <h1>Разгадай все <span class="highlight">тайны</span> в своём городе</h1>
-                    <p class="hero-sub">
-                        Получи набор улик, отправляйся на поиски, сканируй QR-коды<br>
-                        и найди финальный клад. Череповец ждёт своих сталкеров.
-                    </p>
-                    <div class="hero-buttons">
-                        <a href="catalog.html" class="btn-primary">🎯 Начать поиск</a>
-                        <a href="#how-it-works" class="btn-secondary">Как это работает</a>
-                    </div>
+        <section class="container hero">
+            <div class="hero-content">
+                <div class="section-tag">Новое расследование</div>
+                <h1>Стань <span class="highlight">сыщиком</span> в своём городе</h1>
+                <div class="divider"></div>
+                <div class="hero-desc">
+                    Собирай улики, сканируй QR-коды и раскрывай тёмные дела. Каждый квест — это новое приключение.
+                </div>
+                <div class="hero-buttons">
+                    <a href="catalog.html" class="btn btn-primary">🚀 Начать</a>
+                    <a href="rules.html" class="btn btn-secondary">Как играть</a>
                 </div>
                 <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-number" id="totalBoxes">3+</span>
-                        <span class="stat-label">уровня сложности</span>
+                    <div class="stat"><span class="stat-number">7+</span><span class="stat-label">Квестов</span></div>
+                    <div class="stat"><span class="stat-number">24/7</span><span class="stat-label">Доступность</span></div>
+                    <div class="stat"><span class="stat-number">0 ₽</span><span class="stat-label">Есть бесплатные</span></div>
+                </div>
+            </div>
+            <div class="hero-card-wrapper">
+                <div class="hero-card">
+                    <div class="corner-mark tl"></div>
+                    <div class="corner-mark tr"></div>
+                    <div class="corner-mark bl"></div>
+                    <div class="corner-mark br"></div>
+                    <span class="badge">🔥 Популярный</span>
+                    <h3>Призрак инженера</h3>
+                    <p>Городская легенда о пропавшем инженере. Найди 7 улик и раскрой тайну.</p>
+                    <div class="meta">
+                        <span><span class="dot-accent"></span> 7 точек</span>
+                        <span><span class="dot-accent blue"></span> ~40 мин</span>
+                        <span><span class="dot-accent green"></span> Бесплатно</span>
                     </div>
-                    <div class="stat">
-                        <span class="stat-number">24/7</span>
-                        <span class="stat-label">в любое время</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">0 ₽</span>
-                        <span class="stat-label">есть бесплатные</span>
-                    </div>
+                    <a href="box.html?id=1" class="btn btn-primary">Подробнее</a>
                 </div>
             </div>
         </section>
 
-        <section id="how-it-works" class="section how-it-works">
+        <section class="section">
             <div class="container">
-                <h2 class="section-title">Как это работает?</h2>
+                <div class="section-header">
+                    <div class="section-title">Как это <span>работает</span></div>
+                    <div class="section-line"></div>
+                    <span style="color:#5a6a80; font-size:14px;">4 шага</span>
+                </div>
                 <div class="steps-grid">
-                    <div class="step-card">
-                        <div class="step-icon">📦</div>
+                    <div class="step-card fade-up fade-up-d1">
+                        <span class="step-number">01</span>
+                        <span class="step-icon">📦</span>
                         <h3>Выбери квест</h3>
-                        <p>Выбери уровень сложности и оплати (или возьми бесплатный). Получи набор улик.</p>
+                        <p>Выбери уровень сложности и получи набор улик.</p>
                     </div>
-                    <div class="step-card">
-                        <div class="step-icon">🗺️</div>
+                    <div class="step-card fade-up fade-up-d2">
+                        <span class="step-number">02</span>
+                        <span class="step-icon">🗺️</span>
                         <h3>Найди место</h3>
-                        <p>Используй фото, текст и координаты, чтобы найти нужную точку в городе.</p>
+                        <p>Используй фото, текст и координаты, чтобы найти точку.</p>
                     </div>
-                    <div class="step-card">
-                        <div class="step-icon">📸</div>
+                    <div class="step-card fade-up fade-up-d3">
+                        <span class="step-number">03</span>
+                        <span class="step-icon">📸</span>
                         <h3>Сканируй QR</h3>
-                        <p>На месте найди QR-код или цифровой код на стикере. Введи его на сайте.</p>
+                        <p>На месте найди QR-код и введи его на сайте.</p>
                     </div>
-                    <div class="step-card">
-                        <div class="step-icon">🏆</div>
+                    <div class="step-card fade-up fade-up-d4">
+                        <span class="step-number">04</span>
+                        <span class="step-icon">🏆</span>
                         <h3>Найди клад</h3>
-                        <p>После всех кодов получи финальные координаты и забери свой приз!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section levels">
-            <div class="container">
-                <h2 class="section-title">Выбери свой уровень</h2>
-                <div class="levels-grid">
-                    <div class="level-card easy">
-                        <span class="level-badge">🟢 Лёгкий</span>
-                        <h3>Новичок</h3>
-                        <p>Явные ориентиры, фото и координаты. Идеально для первого раза.</p>
-                        <span class="level-price">Бесплатно</span>
-                        <a href="catalog.html" class="btn-level">Выбрать</a>
-                    </div>
-                    <div class="level-card medium">
-                        <span class="level-badge">🟡 Средний</span>
-                        <h3>Искатель</h3>
-                        <p>Только фото и шифрованные подсказки. Без чётких координат.</p>
-                        <span class="level-price">Бесплатно</span>
-                        <a href="catalog.html" class="btn-level">Выбрать</a>
-                    </div>
-                    <div class="level-card hard">
-                        <span class="level-badge">🔴 Сложный</span>
-                        <h3>Сталкер</h3>
-                        <p>Ночной поиск, только фото и приметы. Для настоящих охотников.</p>
-                        <span class="level-price">Бесплатно</span>
-                        <a href="catalog.html" class="btn-level">Выбрать</a>
+                        <p>Собери все улики и получи финальные координаты.</p>
                     </div>
                 </div>
             </div>
@@ -111,22 +103,34 @@
 
         <section class="cta-section">
             <div class="container">
-                <h2>Готов к приключению?</h2>
-                <p>Выбери свой первый бокс и отправляйся на поиски тайника прямо сейчас.</p>
-                <a href="catalog.html" class="btn-primary btn-large">🚀 Открыть каталог</a>
+                <div class="section-tag" style="display:inline-block; margin-bottom:12px;">Готов к приключению?</div>
+                <h2>Выбери свой <span style="color:#ff6b35;">квест</span></h2>
+                <p>Отправляйся на поиски тайника прямо сейчас.</p>
+                <a href="catalog.html" class="btn btn-primary btn-bottom">Открыть каталог</a>
             </div>
         </section>
     </main>
 
     <footer class="main-footer">
         <div class="container">
-            <p>🕵 Код города · Череповец · 2026</p>
-            <p class="footer-small">* Участие в квесте добровольное. Организатор не несёт ответственности за действия участников. 
-                Соблюдайте ПДД и общественный порядок.</p>
+            <p>Код города · Череповец · 2026</p>
+            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
         </div>
     </footer>
 
-    <script src="js/boxes-data.js"></script>
-    <script src="js/main.js"></script>
+    <script>
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html>

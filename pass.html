@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Пропуск — Код города</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/pass.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo">🗺️ Код города</div>
+            <div class="logo">
+                <img src="assets/logo.svg" alt="Код города" class="logo-img" style="height:60px; width:auto;">
+            </div>
             <nav>
-                <a href="index.html">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="pass.html" class="active">Пропуск</a>
+                <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html">Главная</a>
+                    <a href="catalog.html">Каталог</a>
+                    <a href="pass.html" class="active">Пропуск</a>
+                    <a href="rules.html">Правила</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
+                </div>
             </nav>
         </div>
     </header>
@@ -26,7 +33,6 @@
                 <div class="pass-container">
                     <h1 class="pass-title">🔐 ОФИЦИАЛЬНЫЙ ПРОПУСК</h1>
                     <p class="pass-subtitle">Предъявите при необходимости сотрудникам охраны или полиции</p>
-
                     <div class="pass-form">
                         <div class="form-group">
                             <label for="playerName">Ваше имя</label>
@@ -34,16 +40,11 @@
                         </div>
                         <div class="form-group">
                             <label for="questSelect">Выберите квест</label>
-                            <select id="questSelect">
-                                <!-- Загружается из JS -->
-                            </select>
+                            <select id="questSelect"></select>
                         </div>
-                        <button class="btn-primary" onclick="generatePass()">🎫 Сгенерировать пропуск</button>
+                        <button class="btn btn-primary" onclick="generatePass()">🎫 Сгенерировать пропуск</button>
                     </div>
-
-                    <div id="passCard" style="display: none;">
-                        <!-- Генерируется из JS -->
-                    </div>
+                    <div id="passCard" style="display: none;"></div>
                 </div>
             </div>
         </section>
@@ -51,11 +52,26 @@
 
     <footer class="main-footer">
         <div class="container">
-            <p>🗺️ Код города · Череповец · 2026</p>
+            <p>Код города · Череповец · 2026</p>
+            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
         </div>
     </footer>
 
     <script src="js/boxes-data.js"></script>
     <script src="js/pass.js"></script>
+    <script>
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html>

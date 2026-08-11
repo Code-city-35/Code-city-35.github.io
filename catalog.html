@@ -4,52 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог — Код города</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/terminal.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo">🕵 Код города</div>
+            <div class="logo">
+                <img src="assets/logo.svg" alt="Код города" class="logo-img" style="height:60px; width:auto;">
+            </div>
             <nav>
-                <a href="index.html">Главная</a>
-                <a href="catalog.html" class="active">Каталог</a>
-                <a href="pass.html">Пропуск</a>
+                <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html">Главная</a>
+                    <a href="catalog.html" class="active">Каталог</a>
+                    <a href="pass.html">Пропуск</a>
+                    <a href="rules.html">Правила</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
+                </div>
             </nav>
         </div>
     </header>
 
-        <!-- БАННЕР-СОГЛАСИЕ -->
-<div class="consent-banner">
-    <span class="consent-icon">⚖️</span>
-    <div class="consent-content">
-        <span class="consent-title">ВНИМАНИЕ: ПОДТВЕРЖДЕНИЕ СОГЛАСИЯ</span>
-        <span class="consent-text">
-            Начиная любой квест на этом сайте, вы автоматически подтверждаете, что 
-            <strong>ознакомились с <a href="rules.html">правилами игры</a></strong>, 
-            принимаете их в полном объёме и соглашаетесь нести 
-            <strong>личную ответственность</strong> за свои действия во время прохождения квеста.
-            <br>
-            <span class="consent-warning">⚠️ Если вы не согласны с правилами — пожалуйста, не начинайте игру.</span>
-        </span>
-    </div>
-</div>
+    <main>
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title">Доступные <span>квесты</span></div>
+                    <div class="section-line"></div>
+                </div>
+                <div class="consent-banner" style="background:rgba(255,107,53,0.05); border:1px solid rgba(255,107,53,0.1); padding:16px 20px; margin-bottom:32px; display:flex; gap:12px; align-items:flex-start;">
+                    <span style="font-size:22px;">⚖️</span>
+                    <div>
+                        <span style="font-weight:700; color:#ff6b35;">ВНИМАНИЕ: ПОДТВЕРЖДЕНИЕ СОГЛАСИЯ</span>
+                        <p style="color:#8a9bb5; font-size:14px; margin-top:4px;">
+                            Начиная любой квест, вы подтверждаете, что ознакомились с 
+                            <a href="rules.html" style="color:#ff6b35; text-decoration:underline;">правилами игры</a> 
+                            и принимаете личную ответственность за свои действия.
+                        </p>
+                    </div>
+                </div>
+                <div class="quests-grid" id="catalogList">
+                    <!-- Загружается из main.js -->
+                </div>
+            </div>
+        </section>
+    </main>
 
-    <div class="terminal">
-        <div class="terminal-header">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-            <span class="terminal-title">КОД ГОРОДА — каталог</span>
+    <footer class="main-footer">
+        <div class="container">
+            <p>Код города · Череповец · 2026</p>
+            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
         </div>
-
-        <div class="terminal-body" id="catalogList">
-            <!-- Загружается из main.js -->
-        </div>
-    </div>
+    </footer>
 
     <script src="js/boxes-data.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html>

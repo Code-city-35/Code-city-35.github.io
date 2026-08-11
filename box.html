@@ -3,36 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бокс — КОД ГОРОДА</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/terminal.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Квест — Код города</title>
+    <style>
+        /* ===== БАЗОВЫЙ CSS ДЛЯ КВЕСТА ===== */
+        body {
+            background: #080c1a;
+            color: #e8edf2;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+        .terminal {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(16, 24, 44, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+        }
+        .line {
+            margin-bottom: 10px;
+            color: #e8edf2;
+        }
+        .line.dim { color: #5a6a80; }
+        .line .error { color: #ff6b6b; }
+        .line .success { color: #6fcf97; }
+        .input-row input {
+            background: rgba(8, 12, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #e8edf2;
+            padding: 8px;
+            width: 200px;
+        }
+        .input-row button {
+            background: #ff6b35;
+            color: #080c1a;
+            border: none;
+            padding: 8px 20px;
+            cursor: pointer;
+        }
+        .clue-block {
+            background: rgba(16, 24, 44, 0.4);
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .clue-label { color: #5a6a80; font-size: 12px; text-transform: uppercase; }
+        .terminal-link { color: #ff6b35; text-decoration: underline; }
+        .terminal-btn {
+            background: #ff6b35;
+            color: #080c1a;
+            border: none;
+            padding: 8px 20px;
+            cursor: pointer;
+        }
+        .terminal-btn.danger {
+            background: transparent;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+    </style>
 </head>
 <body>
-    <header class="main-header">
-        <div class="container">
-            <div class="logo">🕵 Код города</div>
-            <nav>
-                <a href="index.html">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="pass.html">Пропуск</a>
-            </nav>
-        </div>
-    </header>
-
-    <div class="terminal">
-        <div class="terminal-header">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-            <span class="terminal-title">КОД ГОРОДА — поиск</span>
-        </div>
-        <div class="terminal-body" id="boxContent">
-            <!-- Загружается из box.js -->
-        </div>
+    <div id="boxContent" class="terminal">
+        <!-- Сюда box.js вставит содержимое -->
     </div>
 
     <script src="js/boxes-data.js"></script>
     <script src="js/box.js"></script>
+    <script>
+        console.log('Страница загружена, box.js подключён');
+        // Проверяем, что элементы имеют классы
+        setTimeout(() => {
+            const lines = document.querySelectorAll('.line');
+            console.log('Найдено .line элементов:', lines.length);
+            if (lines.length === 0) {
+                console.warn('Нет элементов с классом .line — возможно, box.js не сгенерировал HTML');
+            }
+        }, 1000);
+    </script>
 </body>
 </html>
