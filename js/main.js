@@ -1,5 +1,5 @@
 // ============================================================
-//  main.js — главная и каталог
+//  main.js — каталог
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,56 +17,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function renderCatalog(container) {
     const boxes = getBoxes();
-    console.log('📦 Количество боксов:', boxes.length);
 
     if (boxes.length === 0) {
         container.innerHTML = `
-            <div class="line dim">> Нет доступных боксов.</div>
-            <div class="line dim">> Возможно, данные не загрузились или были удалены.</div>
-            <div style="margin-top: 16px;">
-                <a href="admin.html" class="terminal-btn danger">⚙️ Перейти в админку</a>
-                <button class="terminal-btn" onclick="window.resetData()" style="margin-left: 12px;">🔄 Сбросить данные</button>
-            </div>
-            <div class="line dim" style="margin-top: 12px; font-size: 13px;">
-                > Сброс восстановит дефолтные боксы (3 штуки).
+            <div style="text-align:center; padding:40px; color:#5a6a80;">
+                <p style="font-size:20px;">📭 Нет доступных квестов</p>
+                <p style="font-size:14px; margin-top:8px;">Загляните в админку, чтобы добавить</p>
+                <a href="admin.html" class="btn btn-primary" style="margin-top:16px; display:inline-block;">⚙️ Перейти в админку</a>
             </div>
         `;
         return;
     }
 
-    let html = '<div class="box-list">';
+    let html = '';
     boxes.forEach(box => {
         const levelClass = box.level === 'легкий' ? 'easy' : box.level === 'средний' ? 'medium' : 'hard';
-        const priceClass = box.isPaid ? 'paid' : 'free';
+        const levelLabel = box.level === 'легкий' ? '🟢 Лёгкий' : box.level === 'средний' ? '🟡 Средний' : '🔴 Сложный';
         const priceText = box.isPaid ? `${box.price} ₽` : 'Бесплатно';
+        const priceClass = box.isPaid ? '' : 'free';
+
         html += `
-            <div class="box-item">
-                <div class="info">
-                    <div class="title">${box.title}</div>
-                    <div class="desc">${box.description}</div>
-                    <span class="level ${levelClass}">${box.level}</span>
-                </div>
-                <div class="actions">
+            <div class="quest-card fade-up">
+                <div class="corner-mark tl"></div>
+                <div class="corner-mark tr"></div>
+                <div class="corner-mark bl"></div>
+                <div class="corner-mark br"></div>
+                <span class="level-badge ${levelClass}">${levelLabel}</span>
+                <h3>${box.title}</h3>
+                <p class="desc">${box.description}</p>
+                <div class="footer">
                     <span class="price ${priceClass}">${priceText}</span>
-                    <a href="box.html?id=${box.id}" class="terminal-btn" style="padding: 6px 16px; font-size: 14px;">
-                        ${box.isPaid ? '💰 Взять' : '🆓 Открыть'}
-                    </a>
+                    <a href="box.html?id=${box.id}" class="btn btn-small">Начать</a>
                 </div>
             </div>
         `;
     });
-    html += '</div>';
-    html += `
-        <div style="margin-top: 24px; text-align: right;">
-            <a href="admin.html" class="terminal-link" style="font-size: 12px; color: #4a5a6e;">⚙️ Админка</a>
-        </div>
-    `;
+
     container.innerHTML = html;
 }
-
-window.resetData = function() {
-    if (confirm('Сбросить данные боксов к дефолтным? Все созданные боксы будут потеряны.')) {
-        localStorage.removeItem('boxesData');
-        location.reload();
-    }
-};

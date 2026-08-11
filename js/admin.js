@@ -2,8 +2,322 @@
 //  admin.js — Удобная админка с отдельными полями для улик
 // ============================================================
 
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD = '1771';
 let editingBoxId = null;
+
+// ============================================================
+//  ВСТРАИВАЕМ СТИЛИ ПРЯМО В JS (гарантированно)
+// ============================================================
+(function injectStyles() {
+    if (document.getElementById('admin-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'admin-styles';
+    style.textContent = `
+        /* Глобальные стили для админки */
+        .line {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #e8edf2;
+        }
+        .line.dim {
+            color: #5a6a80;
+        }
+        .line .error {
+            color: #ff6b6b;
+        }
+        .line .success {
+            color: #6fcf97;
+        }
+        .terminal-btn {
+            display: inline-block;
+            padding: 10px 28px;
+            font-weight: 600;
+            font-size: 16px;
+            background: #ff6b35;
+            color: #080c1a;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .terminal-btn:hover {
+            background: #ff8a5c;
+        }
+        .terminal-btn.danger {
+            background: transparent;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+        .terminal-btn.danger:hover {
+            background: #ff6b6b;
+            color: #080c1a;
+        }
+        .terminal-link {
+            color: #ff6b35;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(255, 107, 53, 0.2);
+            transition: 0.2s;
+        }
+        .terminal-link:hover {
+            border-bottom-color: #ff6b35;
+        }
+
+        /* Стили для админ-панели */
+        .admin-login {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .admin-login input {
+            width: 100%;
+            background: rgba(8, 12, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #e8edf2;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px;
+            transition: 0.2s;
+        }
+        .admin-login input:focus {
+            border-color: #ff6b35;
+            outline: none;
+        }
+        .admin-login button {
+            margin-top: 12px;
+        }
+
+        .admin-panel .admin-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .admin-panel .admin-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .admin-panel .admin-stats .stat {
+            background: rgba(16, 24, 44, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 24px;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+        .admin-panel .admin-stats .stat .num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ff6b35;
+            display: block;
+        }
+        .admin-panel .admin-stats .stat .label {
+            font-size: 12px;
+            color: #5a6a80;
+        }
+        .admin-panel .box-admin-item {
+            background: rgba(16, 24, 44, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            transition: 0.3s;
+        }
+        .admin-panel .box-admin-item:hover {
+            border-color: rgba(255, 107, 53, 0.15);
+        }
+        .admin-panel .box-admin-item .info .title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #e8edf2;
+        }
+        .admin-panel .box-admin-item .info .sub {
+            color: #8a9bb5;
+            font-size: 13px;
+        }
+        .admin-panel .box-admin-item .actions button {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #8a9bb5;
+            padding: 4px 14px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .admin-panel .box-admin-item .actions button:hover {
+            border-color: #ff6b35;
+            color: #e8edf2;
+        }
+        .admin-panel .box-admin-item .actions button.danger {
+            color: #ff6b6b;
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+        .admin-panel .box-admin-item .actions button.danger:hover {
+            border-color: #ff6b6b;
+        }
+
+        /* Модалка */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal {
+            background: rgba(16, 24, 44, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 32px 28px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h3 {
+            margin-bottom: 16px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ff6b35;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            color: #8a9bb5;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .modal .field input,
+        .modal .field textarea,
+        .modal .field select {
+            width: 100%;
+            background: rgba(8, 12, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #e8edf2;
+            padding: 10px 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .modal .field input:focus,
+        .modal .field textarea:focus,
+        .modal .field select:focus {
+            border-color: #ff6b35;
+            outline: none;
+        }
+        .modal .field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .modal .field .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .modal .field .toggle-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #8a9bb5;
+        }
+        .modal .field .toggle-group input[type="checkbox"] {
+            width: auto;
+            accent-color: #ff6b35;
+        }
+        .modal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal .modal-actions button {
+            padding: 8px 24px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: transparent;
+            color: #8a9bb5;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal .modal-actions button:hover {
+            border-color: #ff6b35;
+            color: #e8edf2;
+        }
+        .modal .modal-actions button.cancel {
+            color: #5a6a80;
+        }
+        .modal .modal-actions button.save {
+            background: #ff6b35;
+            color: #080c1a;
+            border-color: #ff6b35;
+            font-weight: 700;
+        }
+        .modal .modal-actions button.save:hover {
+            background: #ff8a5c;
+        }
+
+        /* Блок улик в админке */
+        .modal .clue-block {
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 12px;
+            margin-top: 8px;
+            background: rgba(8, 12, 26, 0.4);
+        }
+        .modal .clue-block label {
+            display: block;
+            color: #5a6a80;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+        .modal .clue-block input,
+        .modal .clue-block select {
+            width: 100%;
+            background: rgba(8, 12, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #e8edf2;
+            padding: 6px 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .modal .clue-block input:focus,
+        .modal .clue-block select:focus {
+            border-color: #ff6b35;
+            outline: none;
+        }
+        .modal .clue-block .clue-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+    `;
+    document.head.appendChild(style);
+})();
 
 // ============================================================
 //  ЗАГРУЗКА СТРАНИЦЫ
@@ -28,7 +342,7 @@ function showLogin() {
             <div class="line dim">> Введите пароль:</div>
             <input type="password" id="adminPassword" placeholder="Пароль" autofocus>
             <button class="terminal-btn" onclick="window.handleLogin()">Войти</button>
-            <div id="loginError" style="color: #ff0040; margin-top: 8px; display: none;">❌ Неверный пароль</div>
+            <div id="loginError" style="color: #ff6b6b; margin-top: 8px; display: none;">❌ Неверный пароль</div>
         </div>
     `;
     document.getElementById('adminPassword').addEventListener('keydown', function(e) {
@@ -110,7 +424,7 @@ function renderAdminList() {
 }
 
 // ============================================================
-//  ГЕНЕРАЦИЯ БЛОКА УЛИКИ (с поддержкой видео и аудио)
+//  ГЕНЕРАЦИЯ БЛОКА УЛИКИ
 // ============================================================
 function generateClueBlock(index, clue = null) {
     const type = clue ? clue.type : 'photo';
