@@ -86,5 +86,23 @@
             });
         });
     </script>
+    <!-- Секретный вход в админку: 5 кликов по логотипу -->
+<script>
+    let clickCount = 0;
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('click', function(e) {
+            clickCount++;
+            if (clickCount >= 5) {
+                clickCount = 0;
+                window.location.href = 'admin.html';
+            }
+            clearTimeout(this._timeout);
+            this._timeout = setTimeout(() => {
+                clickCount = 0;
+            }, 3000);
+        });
+    }
+</script>
 </body>
 </html>
