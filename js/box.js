@@ -1,5 +1,5 @@
 // ============================================================
-//  box.js — страница квеста (загружает улики из Supabase)
+//  box.js — страница квеста
 // ============================================================
 
 import { getQuestById, getCluesByQuestId } from './quests-data.js';
@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 `;
                 return;
             }
-            // Загружаем улики отдельно (на всякий случай)
             if (!currentBox.clues) {
                 currentBox.clues = await getCluesByQuestId(boxId);
             }
