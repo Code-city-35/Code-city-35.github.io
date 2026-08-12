@@ -1,7 +1,3 @@
-// ============================================================
-//  supabase-client.js — подключение к Supabase с отладкой на экране
-// ============================================================
-
 const SUPABASE_URL = 'https://gyjdhxknzijscmjfehbm.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Iy1IDODIWq4HW24ncRGUdA_dT944nP4';
 
@@ -10,15 +6,14 @@ let useSupabase = false;
 let clientReady = false;
 const readyCallbacks = [];
 
-// Функция для вывода на экран
 function showDebug(msg, isError = false) {
-    const el = document.getElementById('debugInfo') || (() => {
-        const d = document.createElement('div');
-        d.id = 'debugInfo';
-        d.style.cssText = 'background:#111;color:#0f0;padding:12px;margin:12px;border:1px solid #ff6b35;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:200px;overflow:auto;';
-        document.body.prepend(d);
-        return d;
-    })();
+    let el = document.getElementById('debugInfo');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'debugInfo';
+        el.style.cssText = 'background:#111;color:#0f0;padding:12px;margin:12px;border:1px solid #ff6b35;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:300px;overflow:auto;z-index:9999;position:relative;';
+        document.body.prepend(el);
+    }
     el.innerHTML += `<div style="color:${isError ? '#ff6b6b' : '#6fcf97'}">${msg}</div>`;
     console.log(msg);
 }
