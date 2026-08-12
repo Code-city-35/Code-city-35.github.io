@@ -7,17 +7,6 @@ let timerInterval = null;
 let isFinished = false;
 let isLocked = false;
 
-function showDebug(msg, isError = false) {
-    let el = document.getElementById('debugInfo');
-    if (!el) {
-        el = document.createElement('div');
-        el.id = 'debugInfo';
-        el.style.cssText = 'background:#111;color:#0f0;padding:12px;margin:12px;border:1px solid #ff6b35;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:300px;overflow:auto;z-index:9999;position:relative;';
-        document.body.prepend(el);
-    }
-    el.innerHTML += `<div style="color:${isError ? '#ff6b6b' : '#6fcf97'}">${msg}</div>`;
-}
-
 (function injectStyles() {
     if (document.getElementById('box-styles')) return;
     const style = document.createElement('style');
@@ -55,9 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const boxId = parseInt(params.get('id'));
     if (boxId) {
         try {
-            showDebug('🔄 Загрузка квеста ID: ' + boxId);
             currentBox = await getQuestById(boxId);
-            showDebug('📦 Получен квест: ' + (currentBox ? currentBox.title : 'null'));
             if (!currentBox) {
                 document.getElementById('boxContent').innerHTML = `
                     <div class="line error">> Ошибка: бокс не найден</div>
@@ -70,7 +57,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             renderBox();
         } catch (e) {
-            showDebug('❌ Ошибка: ' + e.message, true);
             document.getElementById('boxContent').innerHTML = `
                 <div class="line error">> Ошибка загрузки квеста: ${e.message}</div>
                 <a href="catalog.html" class="terminal-link">← Вернуться в каталог</a>
