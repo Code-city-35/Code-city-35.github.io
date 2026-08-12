@@ -1,20 +1,45 @@
+// ============================================================
+//  quests-data.js — работа с квестами (Supabase) + отладка на экране
+// ============================================================
+
 import { getSupabaseClient, isSupabaseReady, waitForSupabase } from './supabase-client.js';
 
+function showDebug(msg, isError = false) {
+    const el = document.getElementById('debugInfo');
+    if (!el) return;
+    el.innerHTML += `<div style="color:${isError ? '#ff6b6b' : '#6fcf97'}">${msg}</div>`;
+}
+
 export async function getQuests() {
+    showDebug('📥 Загрузка квестов...');
     await waitForSupabase();
-    if (!isSupabaseReady()) return [];
+    if (!isSupabaseReady()) {
+        showDebug('❌ Supabase НЕ ГОТОВ!', true);
+        return [];
+    }
     try {
         const client = getSupabaseClient();
-        const { data } = await client.from('quests').select('*').order('id');
-        if (!data || data.length === 0) return [];
+        showDebug('📡 Запрос к таблице quests...');
+        const { data, error } = await client.from('quests').select('*').order('id');
+        if (error) {
+            showDebug('❌ Ошибка SQL: ' + error.message, true);
+            throw error;
+        }
+        showDebug('✅ Получено квестов: ' + (data ? data.length : 0));
+        if (!data || data.length === 0) {
+            showDebug('⚠️ Таблица quests пуста!', true);
+            return [];
+        }
         const result = [];
         for (const q of data) {
-            const { data: clues } = await client.from('clues').select('*').eq('quest_id', q.id).order('order_index');
+            const { data: clues, error: cErr } = await client.from('clues').select('*').eq('quest_id', q.id).order('order_index');
+            if (cErr) showDebug('⚠️ Ошибка загрузки улик для квеста ' + q.id + ': ' + cErr.message, true);
             result.push({ ...q, clues: clues || [] });
         }
+        showDebug('✅ Загружено ' + result.length + ' квестов с уликами');
         return result;
     } catch (e) {
-        console.error('Ошибка загрузки квестов:', e);
+        showDebug('❌ Исключение: ' + e.message, true);
         return [];
     }
 }
@@ -74,6 +99,6 @@ export async function deleteQuest(id) {
     return true;
 }
 
-// Для совместимости со старым кодом
+// Для совместимости
 export function getBoxes() { return getQuests(); }
 export function getBoxById(id) { return getQuestById(id); }
