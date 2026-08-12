@@ -1,14 +1,11 @@
 // ============================================================
-//  admin.js — админка (Квесты + Новости)
+//  admin.js — админка (только localStorage, без Supabase)
 // ============================================================
 
-import { getQuests, addQuest, updateQuest, deleteQuest, getQuestById } from './quests-data.js';
-import { getNews, addNews, updateNews, deleteNews } from './news-data.js';
-
 const ADMIN_PASSWORD = 'admin123';
+const STORAGE_KEY = 'questsData';
 
 let editingQuestId = null;
-let editingNewsId = null;
 
 // ============================================================
 //  ЛОГИН / ВЫХОД
@@ -49,6 +46,43 @@ function logout() {
 }
 
 // ============================================================
+//  РАБОТА С ДАННЫМИ (localStorage)
+// ============================================================
+function getLocalQuests() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+        try { return JSON.parse(stored); } catch { return getDefaultQuests(); }
+    }
+    return getDefaultQuests();
+}
+
+function saveLocalQuests(quests) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(quests));
+}
+
+function getDefaultQuests() {
+    return [
+        {
+            id: 1,
+            title: 'Призрак инженера',
+            description: 'Городская легенда о пропавшем инженере.',
+            level: 'средний',
+            isPaid: false,
+            price: 0,
+            finalCoords: '59.1220, 37.9080',
+            clues: [
+                { type: 'photo', value: 'assets/bridge_old.jpg', caption: 'Найди место со снимка', code: 'BELOV-01', question: 'Какой год?', answer: '1905' }
+            ]
+        }
+    ];
+}
+
+function generateId() {
+    const quests = getLocalQuests();
+    return quests.length > 0 ? Math.max(...quests.map(q => q.id)) + 1 : 1;
+}
+
+// ============================================================
 //  ПАНЕЛЬ УПРАВЛЕНИЯ
 // ============================================================
 function showAdminPanel() {
@@ -56,100 +90,65 @@ function showAdminPanel() {
     container.innerHTML = `
         <div class="admin-panel">
             <div class="admin-toolbar">
-                <h3 style="color:#ff6b35;">⚙️ Управление</h3>
+                <h3 style="color:#ff6b35;">⚙️ Управление квестами</h3>
                 <div>
-                    <button id="tabQuestsBtn">📋 Квесты</button>
-                    <button id="tabNewsBtn">📰 Новости</button>
+                    <button id="addQuestBtn">➕ Добавить квест</button>
                     <button id="logoutBtn" class="danger">🚪 Выйти</button>
                 </div>
             </div>
-            <div id="adminTabContent"></div>
+            <div id="questList"></div>
         </div>
     `;
 
-    document.getElementById('tabQuestsBtn').addEventListener('click', () => switchTab('quests'));
-    document.getElementById('tabNewsBtn').addEventListener('click', () => switchTab('news'));
+    document.getElementById('addQuestBtn').addEventListener('click', () => openQuestModal());
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
-    // По умолчанию показываем квесты
-    switchTab('quests');
+    renderQuestList();
 }
 
-// ============================================================
-//  ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
-// ============================================================
-async function switchTab(tab) {
-    const container = document.getElementById('adminTabContent');
-    if (tab === 'quests') {
-        await renderQuestsAdmin(container);
-    } else if (tab === 'news') {
-        await renderNewsAdmin(container);
-    }
-}
-
-// ============================================================
-//  ВКЛАДКА КВЕСТОВ
-// ============================================================
-async function renderQuestsAdmin(container) {
-    container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-            <h3 style="color:#fff;">📋 Квесты</h3>
-            <button id="addQuestBtn">➕ Добавить квест</button>
-        </div>
-        <div id="questList"></div>
-    `;
-    document.getElementById('addQuestBtn').addEventListener('click', () => openQuestModal());
-    await loadQuestsList();
-}
-
-async function loadQuestsList() {
+function renderQuestList() {
     const list = document.getElementById('questList');
-    try {
-        const quests = await getQuests();
-        if (!quests || quests.length === 0) {
-            list.innerHTML = `<p style="color:#5a6a80;">Нет квестов. Добавьте первый!</p>`;
-            return;
-        }
-        let html = '';
-        quests.forEach(q => {
-            const clueCount = q.clues ? q.clues.length : 0;
-            const priceText = q.isPaid ? `${q.price} ₽` : 'Бесплатно';
-            html += `
-                <div class="admin-item">
-                    <div class="info">
-                        <div class="title">${escapeHtml(q.title)}</div>
-                        <div class="sub">${clueCount} улик · Уровень: ${q.level || 'средний'} · ${priceText}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="edit-btn" data-id="${q.id}">✏️</button>
-                        <button class="delete-btn danger" data-id="${q.id}">🗑️</button>
-                    </div>
-                </div>
-            `;
-        });
-        list.innerHTML = html;
-
-        // Навешиваем обработчики на кнопки
-        list.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => openQuestModal(parseInt(btn.dataset.id)));
-        });
-        list.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteQuestItem(parseInt(btn.dataset.id)));
-        });
-    } catch (e) {
-        list.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки: ${e.message}</p>`;
+    const quests = getLocalQuests();
+    if (quests.length === 0) {
+        list.innerHTML = `<p style="color:#5a6a80;">Нет квестов. Добавьте первый!</p>`;
+        return;
     }
+    let html = '';
+    quests.forEach(q => {
+        const clueCount = q.clues ? q.clues.length : 0;
+        const priceText = q.isPaid ? `${q.price} ₽` : 'Бесплатно';
+        html += `
+            <div class="admin-item">
+                <div class="info">
+                    <div class="title">${escapeHtml(q.title)}</div>
+                    <div class="sub">${clueCount} улик · Уровень: ${q.level || 'средний'} · ${priceText}</div>
+                </div>
+                <div class="actions">
+                    <button class="edit-btn" data-id="${q.id}">✏️</button>
+                    <button class="delete-btn danger" data-id="${q.id}">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+    list.innerHTML = html;
+
+    list.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => openQuestModal(parseInt(btn.dataset.id)));
+    });
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteQuestItem(parseInt(btn.dataset.id)));
+    });
 }
 
 // ============================================================
 //  МОДАЛКА КВЕСТА
 // ============================================================
-async function openQuestModal(id = null) {
+function openQuestModal(id = null) {
     editingQuestId = id;
     let quest = null;
     let title = '➕ Новый квест';
     if (id) {
-        quest = await getQuestById(id);
+        quest = getLocalQuests().find(q => q.id === id);
         if (quest) title = '✏️ Редактировать квест';
     }
 
@@ -178,7 +177,7 @@ async function openQuestModal(id = null) {
                 <input type="text" id="qDesc" value="${quest ? escapeHtml(quest.description) : ''}" placeholder="Краткое описание">
             </div>
             <div class="field">
-                <label>Уровень сложности</label>
+                <label>Уровень</label>
                 <select id="qLevel">
                     <option value="легкий" ${quest && quest.level === 'легкий' ? 'selected' : ''}>Легкий</option>
                     <option value="средний" ${quest && quest.level === 'средний' ? 'selected' : ''}>Средний</option>
@@ -186,11 +185,7 @@ async function openQuestModal(id = null) {
                 </select>
             </div>
             <div class="field">
-                <label>Тип доступа</label>
-                <div style="display:flex; gap:12px; align-items:center;">
-                    <label><input type="checkbox" id="qIsPaid" ${quest && quest.isPaid ? 'checked' : ''}> Платный</label>
-                    <span style="color:#4a5a6e; font-size:13px;">(отключено = бесплатно)</span>
-                </div>
+                <label><input type="checkbox" id="qIsPaid" ${quest && quest.isPaid ? 'checked' : ''}> Платный</label>
             </div>
             <div class="field" id="priceField" style="${quest && quest.isPaid ? 'display:block;' : 'display:none;'}">
                 <label>Цена (₽)</label>
@@ -214,7 +209,6 @@ async function openQuestModal(id = null) {
 
     document.body.appendChild(modal);
 
-    // Обработчики
     document.getElementById('closeQuestModalBtn').addEventListener('click', () => modal.remove());
     document.getElementById('saveQuestBtn').addEventListener('click', saveQuest);
 
@@ -230,7 +224,6 @@ async function openQuestModal(id = null) {
         container.insertAdjacentHTML('beforeend', generateClueBlock(index, null));
     });
 
-    // Удаление улик
     document.querySelectorAll('.clue-block .remove-clue').forEach(btn => {
         btn.addEventListener('click', function() {
             const block = this.closest('.clue-block');
@@ -240,7 +233,6 @@ async function openQuestModal(id = null) {
                 return;
             }
             block.remove();
-            // Перенумеровываем
             container.querySelectorAll('.clue-block').forEach((el, i) => {
                 const label = el.querySelector('.clue-index');
                 if (label) label.textContent = `Улика #${i+1}`;
@@ -290,7 +282,7 @@ function generateClueBlock(index, clue) {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
                 <div>
                     <label>Вопрос</label>
-                    <input type="text" class="clue-question" value="${question}" placeholder="Какой год на табличке?">
+                    <input type="text" class="clue-question" value="${question}" placeholder="Какой год?">
                 </div>
                 <div>
                     <label>Ответ</label>
@@ -301,7 +293,7 @@ function generateClueBlock(index, clue) {
     `;
 }
 
-async function saveQuest() {
+function saveQuest() {
     const title = document.getElementById('qTitle').value.trim();
     const desc = document.getElementById('qDesc').value.trim();
     const level = document.getElementById('qLevel').value;
@@ -328,168 +320,35 @@ async function saveQuest() {
     if (clues.length === 0) { alert('Добавьте улики'); return; }
 
     const questData = { title, description: desc, level, isPaid, price, finalCoords, clues };
+    let quests = getLocalQuests();
 
-    try {
-        if (editingQuestId) {
-            await updateQuest(editingQuestId, questData);
+    if (editingQuestId) {
+        const index = quests.findIndex(q => q.id === editingQuestId);
+        if (index !== -1) {
+            quests[index] = { ...quests[index], ...questData };
         } else {
-            await addQuest(questData);
-        }
-        document.getElementById('questModal').remove();
-        await loadQuestsList();
-        alert('✅ Квест сохранён!');
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
-    }
-}
-
-async function deleteQuestItem(id) {
-    if (!confirm('Удалить квест?')) return;
-    try {
-        await deleteQuest(id);
-        await loadQuestsList();
-        alert('✅ Квест удалён');
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
-    }
-}
-
-// ============================================================
-//  ВКЛАДКА НОВОСТЕЙ
-// ============================================================
-async function renderNewsAdmin(container) {
-    container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-            <h3 style="color:#fff;">📰 Новости</h3>
-            <button id="addNewsBtn">➕ Добавить новость</button>
-        </div>
-        <div id="newsList"></div>
-    `;
-    document.getElementById('addNewsBtn').addEventListener('click', () => openNewsModal());
-    await loadNewsList();
-}
-
-async function loadNewsList() {
-    const list = document.getElementById('newsList');
-    try {
-        const news = await getNews();
-        if (!news || news.length === 0) {
-            list.innerHTML = `<p style="color:#5a6a80;">Нет новостей. Добавьте первую!</p>`;
+            alert('Ошибка: квест не найден');
             return;
         }
-        let html = '';
-        news.forEach(item => {
-            html += `
-                <div class="admin-item">
-                    <div class="info">
-                        <div class="title">${escapeHtml(item.title)}</div>
-                        <div class="sub">${new Date(item.date).toLocaleDateString('ru-RU')} · ${escapeHtml((item.preview || item.content || '').substring(0, 80))}...</div>
-                    </div>
-                    <div class="actions">
-                        <button class="edit-news" data-id="${item.id}">✏️</button>
-                        <button class="delete-news danger" data-id="${item.id}">🗑️</button>
-                    </div>
-                </div>
-            `;
-        });
-        list.innerHTML = html;
-
-        list.querySelectorAll('.edit-news').forEach(btn => {
-            btn.addEventListener('click', () => openNewsModal(parseInt(btn.dataset.id)));
-        });
-        list.querySelectorAll('.delete-news').forEach(btn => {
-            btn.addEventListener('click', () => deleteNewsItem(parseInt(btn.dataset.id)));
-        });
-    } catch (e) {
-        list.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей: ${e.message}</p>`;
+    } else {
+        const newId = generateId();
+        quests.push({ ...questData, id: newId });
     }
+    saveLocalQuests(quests);
+    document.getElementById('questModal').remove();
+    renderQuestList();
+    alert('✅ Квест сохранён!');
 }
 
-// ============================================================
-//  МОДАЛКА НОВОСТИ
-// ============================================================
-async function openNewsModal(id = null) {
-    editingNewsId = id;
-    let item = null;
-    let title = '➕ Новая новость';
-    if (id) {
-        const all = await getNews();
-        item = all.find(n => n.id === id);
-        if (item) title = '✏️ Редактировать новость';
-    }
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.id = 'newsModal';
-    modal.innerHTML = `
-        <div class="modal">
-            <h3>${title}</h3>
-            <div class="field">
-                <label>Заголовок</label>
-                <input type="text" id="newsTitle" value="${item ? escapeHtml(item.title) : ''}" placeholder="Заголовок новости">
-            </div>
-            <div class="field">
-                <label>Краткий текст (превью)</label>
-                <textarea id="newsPreview" rows="2">${item ? escapeHtml(item.preview || '') : ''}</textarea>
-            </div>
-            <div class="field">
-                <label>Полный текст</label>
-                <textarea id="newsContent" rows="5">${item ? escapeHtml(item.content || '') : ''}</textarea>
-            </div>
-            <div class="field">
-                <label>Ссылка на изображение</label>
-                <input type="text" id="newsImage" value="${item ? escapeHtml(item.image || '') : ''}" placeholder="https://example.com/image.jpg">
-            </div>
-            <div class="modal-actions">
-                <button class="cancel" id="closeNewsModalBtn">Отмена</button>
-                <button class="save" id="saveNewsBtn">💾 Сохранить</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    document.getElementById('closeNewsModalBtn').addEventListener('click', () => modal.remove());
-    document.getElementById('saveNewsBtn').addEventListener('click', saveNewsItem);
+function deleteQuestItem(id) {
+    if (!confirm('Удалить квест?')) return;
+    let quests = getLocalQuests();
+    quests = quests.filter(q => q.id !== id);
+    saveLocalQuests(quests);
+    renderQuestList();
+    alert('✅ Квест удалён');
 }
 
-async function saveNewsItem() {
-    const title = document.getElementById('newsTitle').value.trim();
-    const preview = document.getElementById('newsPreview').value.trim();
-    const content = document.getElementById('newsContent').value.trim();
-    const image = document.getElementById('newsImage').value.trim();
-    if (!title) { alert('Введите заголовок'); return; }
-    if (!content) { alert('Введите текст'); return; }
-
-    const data = { title, content, preview, image };
-    try {
-        if (editingNewsId) {
-            await updateNews(editingNewsId, data);
-        } else {
-            await addNews(data);
-        }
-        document.getElementById('newsModal').remove();
-        await loadNewsList();
-        alert('✅ Новость сохранена!');
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
-    }
-}
-
-async function deleteNewsItem(id) {
-    if (!confirm('Удалить новость?')) return;
-    try {
-        await deleteNews(id);
-        await loadNewsList();
-        alert('✅ Новость удалена');
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
-    }
-}
-
-// ============================================================
-//  ВСПОМОГАТЕЛЬНЫЕ
-// ============================================================
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
