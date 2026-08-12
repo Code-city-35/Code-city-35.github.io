@@ -12,7 +12,7 @@
     <header class="main-header">
         <div class="container">
             <div class="logo">
-                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:50px; width:auto;">
+                <img src="assets/logo.svg" alt="Код города" class="logo-img" style="height:60px; width:auto;">
             </div>
             <nav>
                 <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
@@ -21,12 +21,15 @@
                     <a href="catalog.html">Каталог</a>
                     <a href="pass.html">Пропуск</a>
                     <a href="rules.html">Правила</a>
+                    <a href="blog.html">Блог</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
                 </div>
             </nav>
         </div>
     </header>
 
     <main>
+        <!-- Герой -->
         <section class="container hero">
             <div class="hero-content">
                 <div class="section-tag">Новое расследование</div>
@@ -40,7 +43,7 @@
                     <a href="rules.html" class="btn btn-secondary">Как играть</a>
                 </div>
                 <div class="hero-stats">
-                    <div class="stat"><span class="stat-number">7+</span><span class="stat-label">Квестов</span></div>
+                    <div class="stat"><span class="stat-number" id="totalQuests">0</span><span class="stat-label">Квестов</span></div>
                     <div class="stat"><span class="stat-number">24/7</span><span class="stat-label">Доступность</span></div>
                     <div class="stat"><span class="stat-number">0 ₽</span><span class="stat-label">Есть бесплатные</span></div>
                 </div>
@@ -52,32 +55,33 @@
                     <div class="corner-mark bl"></div>
                     <div class="corner-mark br"></div>
                     <span class="badge">🔥 Популярный</span>
-                    <h3>Призрак инженера</h3>
-                    <p>Городская легенда о пропавшем инженере. Найди 7 улик и раскрой тайну.</p>
-                    <div class="meta">
+                    <h3 id="featuredQuestTitle">Призрак инженера</h3>
+                    <p id="featuredQuestDesc">Городская легенда о пропавшем инженере. Найди 7 улик и раскрой тайну.</p>
+                    <div class="meta" id="featuredQuestMeta">
                         <span><span class="dot-accent"></span> 7 точек</span>
                         <span><span class="dot-accent blue"></span> ~40 мин</span>
                         <span><span class="dot-accent green"></span> Бесплатно</span>
                     </div>
-                    <a href="box.html?id=1" class="btn btn-primary">Подробнее</a>
+                    <a href="box.html?id=1" class="btn btn-primary" id="featuredQuestLink">Подробнее</a>
                 </div>
             </div>
         </section>
 
         <!-- Последняя новость -->
-    <section class="section latest-news">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-title">Последняя <span>новость</span></div>
-                <div class="section-line"></div>
-                <a href="blog.html" style="color:#ff6b35; font-weight:600; text-decoration:none;">Все новости →</a>
-              </div>
-            <div id="latestNewsContainer">
-                <p style="color:#5a6a80;">Загрузка...</p>
+        <section class="section latest-news">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-title">Последняя <span>новость</span></div>
+                    <div class="section-line"></div>
+                    <a href="blog.html" style="color:#ff6b35; font-weight:600; text-decoration:none;">Все новости →</a>
+                </div>
+                <div id="latestNewsContainer">
+                    <p style="color:#5a6a80;">Загрузка...</p>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
+        <!-- Как это работает -->
         <section class="section">
             <div class="container">
                 <div class="section-header">
@@ -114,6 +118,7 @@
             </div>
         </section>
 
+        <!-- CTA -->
         <section class="cta-section">
             <div class="container">
                 <div class="section-tag" style="display:inline-block; margin-bottom:12px;">Готов к приключению?</div>
@@ -131,38 +136,56 @@
         </div>
     </footer>
 
-    <script type="module">
-    import { getLatestNews } from './js/news-data.js';
+    <!-- Скрипты -->
+    <script src="js/supabase-client.js"></script>
+    <script src="js/quests-data.js"></script>
+    <script src="js/news-data.js"></script>
+    <script>
+        // Бургер-меню
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
 
-    document.addEventListener('DOMContentLoaded', async function() {
-        const container = document.getElementById('latestNewsContainer');
-        try {
-            const news = await getLatestNews();
-            if (news) {
-                container.innerHTML = `
-                    <div class="news-card">
-                        <div class="corner-mark tl"></div>
-                        <div class="corner-mark tr"></div>
-                        <div class="corner-mark bl"></div>
-                        <div class="corner-mark br"></div>
-                        <div class="date">${new Date(news.date).toLocaleDateString('ru-RU')}</div>
-                        <h3>${news.title}</h3>
-                        ${news.image ? `<img src="${news.image}" alt="Иллюстрация">` : ''}
-                        <div class="content">${news.content}</div>
-                        <a href="blog.html" class="read-more">Читать все новости →</a>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет. Добавьте первую через админку.</p>`;
-            }
-        } catch (e) {
-            container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей: ${e.message}</p>`;
-        }
-    });
-</script>
-<script src="js/supabase-client.js"></script>
-<script src="js/quests-data.js"></script>
-<script src="js/news-data.js"></script>
-<script src="js/main.js"></script>
+        // Загрузка последней новости
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('latestNewsContainer');
+            // Ждём, пока подгрузятся данные из news-data.js (глобальные функции)
+            const checkNews = setInterval(() => {
+                if (typeof getLatestNews !== 'undefined') {
+                    clearInterval(checkNews);
+                    getLatestNews().then(news => {
+                        if (news) {
+                            container.innerHTML = `
+                                <div class="news-card">
+                                    <div class="corner-mark tl"></div>
+                                    <div class="corner-mark tr"></div>
+                                    <div class="corner-mark bl"></div>
+                                    <div class="corner-mark br"></div>
+                                    <div class="date">${new Date(news.date).toLocaleDateString('ru-RU')}</div>
+                                    <h3>${news.title}</h3>
+                                    ${news.image ? `<img src="${news.image}" alt="Иллюстрация">` : ''}
+                                    <div class="content">${news.content}</div>
+                                    <a href="blog.html" class="read-more">Читать все новости →</a>
+                                </div>
+                            `;
+                        } else {
+                            container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет. Добавьте первую через админку.</p>`;
+                        }
+                    }).catch(() => {
+                        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей</p>`;
+                    });
+                }
+            }, 100);
+        });
+    </script>
 </body>
 </html>
