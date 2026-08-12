@@ -1,5 +1,5 @@
 // ============================================================
-//  news-data.js — работа с новостями через Supabase
+//  news-data.js — работа с новостями (Supabase + localStorage)
 // ============================================================
 
 import { getSupabaseClient, isSupabaseReady, waitForSupabase } from './supabase-client.js';
@@ -31,30 +31,14 @@ function saveLocalNews(news) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(news));
 }
 
-function addLocalNews(item) {
+function generateLocalNewsId() {
     const news = getLocalNews();
-    const newId = news.length > 0 ? Math.max(...news.map(n => n.id)) + 1 : 1;
-    const newItem = { ...item, id: newId, date: new Date().toISOString() };
-    news.unshift(newItem);
-    saveLocalNews(news);
-    return newItem;
+    return news.length > 0 ? Math.max(...news.map(n => n.id)) + 1 : 1;
 }
 
-function updateLocalNews(id, updates) {
-    const news = getLocalNews();
-    const index = news.findIndex(n => n.id === id);
-    if (index === -1) return null;
-    news[index] = { ...news[index], ...updates };
-    saveLocalNews(news);
-    return news[index];
-}
-
-function deleteLocalNews(id) {
-    let news = getLocalNews();
-    news = news.filter(n => n.id !== id);
-    saveLocalNews(news);
-    return true;
-}
+// ============================================================
+//  ПУБЛИЧНЫЕ ФУНКЦИИ
+// ============================================================
 
 export async function getNews() {
     await waitForSupabase();
@@ -71,8 +55,9 @@ export async function getNews() {
             console.warn('⚠️ Ошибка загрузки новостей из Supabase, используем localStorage', e);
             return getLocalNews();
         }
+    } else {
+        return getLocalNews();
     }
-    return getLocalNews();
 }
 
 export async function getLatestNews() {
@@ -95,8 +80,18 @@ export async function addNews(item) {
             console.warn('⚠️ Ошибка добавления новости в Supabase, сохраняем в localStorage', e);
             return addLocalNews(item);
         }
+    } else {
+        return addLocalNews(item);
     }
-    return addLocalNews(item);
+}
+
+function addLocalNews(item) {
+    const news = getLocalNews();
+    const newId = generateLocalNewsId();
+    const newItem = { ...item, id: newId, date: new Date().toISOString() };
+    news.unshift(newItem);
+    saveLocalNews(news);
+    return newItem;
 }
 
 export async function updateNews(id, updates) {
@@ -115,8 +110,18 @@ export async function updateNews(id, updates) {
             console.warn('⚠️ Ошибка обновления новости в Supabase, обновляем в localStorage', e);
             return updateLocalNews(id, updates);
         }
+    } else {
+        return updateLocalNews(id, updates);
     }
-    return updateLocalNews(id, updates);
+}
+
+function updateLocalNews(id, updates) {
+    const news = getLocalNews();
+    const index = news.findIndex(n => n.id === id);
+    if (index === -1) return null;
+    news[index] = { ...news[index], ...updates };
+    saveLocalNews(news);
+    return news[index];
 }
 
 export async function deleteNews(id) {
@@ -134,6 +139,14 @@ export async function deleteNews(id) {
             console.warn('⚠️ Ошибка удаления новости из Supabase, удаляем из localStorage', e);
             return deleteLocalNews(id);
         }
+    } else {
+        return deleteLocalNews(id);
     }
-    return deleteLocalNews(id);
+}
+
+function deleteLocalNews(id) {
+    let news = getLocalNews();
+    news = news.filter(n => n.id !== id);
+    saveLocalNews(news);
+    return true;
 }
