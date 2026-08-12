@@ -12,7 +12,7 @@
     <header class="main-header">
         <div class="container">
             <div class="logo">
-                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:50px; width:auto;">
+                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:60px; width:auto;">
             </div>
             <nav>
                 <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
@@ -21,6 +21,8 @@
                     <a href="catalog.html" class="active">Каталог</a>
                     <a href="pass.html">Пропуск</a>
                     <a href="rules.html">Правила</a>
+                    <a href="blog.html">Блог</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
                 </div>
             </nav>
         </div>
@@ -58,8 +60,24 @@
         </div>
     </footer>
 
-    <script type="module" src="js/main.js"></script>
+    <!-- Скрипты -->
     <script src="js/supabase-client.js"></script>
     <script src="js/quests-data.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Бургер-меню
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html>
