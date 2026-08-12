@@ -58,21 +58,8 @@
         </div>
     </footer>
 
-    <script src="js/boxes-data.js"></script>
-    <script src="js/main.js"></script>
-    <script>
-        const burger = document.getElementById('burgerBtn');
-        const navLinks = document.getElementById('navLinks');
-        burger.addEventListener('click', function() {
-            this.classList.toggle('active');
-            navLinks.classList.toggle('open');
-        });
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                burger.classList.remove('active');
-                navLinks.classList.remove('open');
-            });
-        });
-    </script>
+    <script type="module" src="js/main.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/quests-data.js"></script>
 </body>
 </html>
