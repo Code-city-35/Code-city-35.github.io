@@ -17,7 +17,6 @@ let editingNewsId = null;
     const style = document.createElement('style');
     style.id = 'admin-styles';
     style.textContent = `
-        /* стили как в тестовой админке (я их не меняю, они уже есть) */
         .terminal-btn { display: inline-block; padding: 8px 20px; font-weight: 600; font-size: 14px; background: #ff6b35; color: #080c1a; border: none; cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: none; transition: 0.2s; }
         .terminal-btn:hover { background: #ff8a5c; }
         .terminal-btn.danger { background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b; }
@@ -554,4 +553,4 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-    }
+        }
