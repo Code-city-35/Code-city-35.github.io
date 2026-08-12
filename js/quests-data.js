@@ -1,12 +1,13 @@
-// ============================================================
-//  quests-data.js — работа с квестами (Supabase) + отладка на экране
-// ============================================================
-
 import { getSupabaseClient, isSupabaseReady, waitForSupabase } from './supabase-client.js';
 
 function showDebug(msg, isError = false) {
-    const el = document.getElementById('debugInfo');
-    if (!el) return;
+    let el = document.getElementById('debugInfo');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'debugInfo';
+        el.style.cssText = 'background:#111;color:#0f0;padding:12px;margin:12px;border:1px solid #ff6b35;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:300px;overflow:auto;z-index:9999;position:relative;';
+        document.body.prepend(el);
+    }
     el.innerHTML += `<div style="color:${isError ? '#ff6b6b' : '#6fcf97'}">${msg}</div>`;
 }
 
@@ -27,7 +28,7 @@ export async function getQuests() {
         }
         showDebug('✅ Получено квестов: ' + (data ? data.length : 0));
         if (!data || data.length === 0) {
-            showDebug('⚠️ Таблица quests пуста!', true);
+            showDebug('⚠️ Таблица quests пуста! Добавь квест через админку.', true);
             return [];
         }
         const result = [];
@@ -98,7 +99,5 @@ export async function deleteQuest(id) {
     await client.from('quests').delete().eq('id', id);
     return true;
 }
-
-// Для совместимости
 export function getBoxes() { return getQuests(); }
 export function getBoxById(id) { return getQuestById(id); }
