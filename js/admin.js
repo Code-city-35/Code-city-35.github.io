@@ -1,7 +1,7 @@
 import { getQuests, addQuest, updateQuest, deleteQuest, getQuestById } from './quests-data.js';
 import { getNews, addNews, updateNews, deleteNews } from './news-data.js';
 
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD = 'J0X!5tceWU';
 let editingQuestId = null;
 let editingNewsId = null;
 
