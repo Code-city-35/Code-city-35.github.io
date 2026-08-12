@@ -64,6 +64,20 @@
             </div>
         </section>
 
+        <!-- Последняя новость -->
+    <section class="section latest-news">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-title">Последняя <span>новость</span></div>
+                <div class="section-line"></div>
+                <a href="blog.html" style="color:#ff6b35; font-weight:600; text-decoration:none;">Все новости →</a>
+              </div>
+            <div id="latestNewsContainer">
+                <p style="color:#5a6a80;">Загрузка...</p>
+            </div>
+        </div>
+    </section>
+
         <section class="section">
             <div class="container">
                 <div class="section-header">
@@ -117,19 +131,38 @@
         </div>
     </footer>
 
-    <script>
-        const burger = document.getElementById('burgerBtn');
-        const navLinks = document.getElementById('navLinks');
-        burger.addEventListener('click', function() {
-            this.classList.toggle('active');
-            navLinks.classList.toggle('open');
-        });
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                burger.classList.remove('active');
-                navLinks.classList.remove('open');
-            });
-        });
-    </script>
+    <script type="module">
+    import { getLatestNews } from './js/news-data.js';
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        const container = document.getElementById('latestNewsContainer');
+        try {
+            const news = await getLatestNews();
+            if (news) {
+                container.innerHTML = `
+                    <div class="news-card">
+                        <div class="corner-mark tl"></div>
+                        <div class="corner-mark tr"></div>
+                        <div class="corner-mark bl"></div>
+                        <div class="corner-mark br"></div>
+                        <div class="date">${new Date(news.date).toLocaleDateString('ru-RU')}</div>
+                        <h3>${news.title}</h3>
+                        ${news.image ? `<img src="${news.image}" alt="Иллюстрация">` : ''}
+                        <div class="content">${news.content}</div>
+                        <a href="blog.html" class="read-more">Читать все новости →</a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет. Добавьте первую через админку.</p>`;
+            }
+        } catch (e) {
+            container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей: ${e.message}</p>`;
+        }
+    });
+</script>
+<script src="js/supabase-client.js"></script>
+<script src="js/quests-data.js"></script>
+<script src="js/news-data.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
