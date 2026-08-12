@@ -45,13 +45,11 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
-    <script src="js/supabase-client.js"></script>
-    <script src="js/quests-data.js"></script>
-    <script src="js/news-data.js"></script>
-    <script src="js/admin.js"></script>
+    <!-- Подключаем админку как модуль (она сама импортирует всё необходимое) -->
+    <script type="module" src="js/admin.js"></script>
+
+    <!-- Бургер-меню (обычный скрипт, не модуль) -->
     <script>
-        // Бургер-меню
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
         burger.addEventListener('click', function() {
