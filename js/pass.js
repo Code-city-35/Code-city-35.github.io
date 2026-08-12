@@ -1,42 +1,20 @@
 // ============================================================
-//  pass.js — генерация пропуска (с отладкой)
+//  pass.js — генерация пропуска (чистая версия)
 // ============================================================
 
 import { getQuests } from './quests-data.js';
 
 // ============================================================
-//  ОТЛАДКА (вывод на экран)
-// ============================================================
-function showDebug(msg, isError = false) {
-    let el = document.getElementById('debugInfo');
-    if (!el) {
-        el = document.createElement('div');
-        el.id = 'debugInfo';
-        el.style.cssText = 'background:#111;color:#0f0;padding:12px;margin:12px;border:1px solid #ff6b35;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:300px;overflow:auto;z-index:9999;position:relative;';
-        document.body.prepend(el);
-    }
-    el.innerHTML += `<div style="color:${isError ? '#ff6b6b' : '#6fcf97'}">${msg}</div>`;
-    console.log(msg);
-}
-
-// ============================================================
 //  ЗАГРУЗКА СПИСКА КВЕСТОВ
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function() {
-    showDebug('🔄 Загрузка pass.js...');
     const select = document.getElementById('questSelect');
-    if (!select) {
-        showDebug('❌ Элемент #questSelect не найден', true);
-        return;
-    }
+    if (!select) return;
 
     try {
-        showDebug('📥 Вызов getQuests()...');
         const quests = await getQuests();
-        showDebug('✅ Получено квестов: ' + (quests ? quests.length : 0));
         select.innerHTML = '<option value="">— Выберите квест —</option>';
         if (!quests || quests.length === 0) {
-            showDebug('⚠️ Квесты не найдены (пустой массив)', true);
             const option = document.createElement('option');
             option.value = '';
             option.textContent = '❌ Нет доступных квестов';
@@ -50,18 +28,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             option.textContent = `${q.icon || '📦'} ${q.title}`;
             select.appendChild(option);
         });
-        showDebug('✅ Список квестов загружен в select');
     } catch (e) {
-        showDebug('❌ Ошибка: ' + e.message, true);
         select.innerHTML = '<option value="">❌ Ошибка загрузки</option>';
     }
 });
 
 // ============================================================
-//  ГЕНЕРАЦИЯ ПРОПУСКА (глобальная функция)
+//  ГЕНЕРАЦИЯ ПРОПУСКА
 // ============================================================
 window.generatePass = async function() {
-    showDebug('🔄 Генерация пропуска...');
     const nameInput = document.getElementById('playerName');
     const questSelect = document.getElementById('questSelect');
     const passCard = document.getElementById('passCard');
@@ -157,10 +132,8 @@ window.generatePass = async function() {
         `;
 
         passCard.style.display = 'block';
-        showDebug('✅ Пропуск сгенерирован');
     } catch (e) {
         alert('Ошибка загрузки квеста: ' + e.message);
-        showDebug('❌ Ошибка генерации: ' + e.message, true);
     }
 };
 
@@ -241,4 +214,4 @@ function printPass() {
         </html>
     `);
     printWindow.document.close();
-}
+            }
