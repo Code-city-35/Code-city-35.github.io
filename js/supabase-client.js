@@ -2,8 +2,8 @@
 //  supabase-client.js — подключение к Supabase с отладкой на экране
 // ============================================================
 
-const SUPABASE_URL = 'https://твой-проект.supabase.co';
-const SUPABASE_ANON_KEY = 'твой-аннон-ключ';
+const SUPABASE_URL = 'https://gyjdhxknzijscmjfehbm.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Iy1IDODIWq4HW24ncRGUdA_dT944nP4';
 
 let supabaseClient = null;
 let useSupabase = false;
