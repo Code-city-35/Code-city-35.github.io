@@ -1,7 +1,4 @@
-// ============================================================
-//  main.js — каталог квестов
-// ============================================================
-
+// main.js — загружает квесты из Supabase и отображает в каталоге
 import { getQuests } from './quests-data.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -9,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (catalogContainer) {
         await renderCatalog(catalogContainer);
     }
-
+    // Если есть элемент для статистики на главной
     const statEl = document.getElementById('totalQuests');
     if (statEl) {
         const quests = await getQuests();
@@ -19,8 +16,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function renderCatalog(container) {
     try {
+        console.log('🔄 Загрузка квестов...');
         const quests = await getQuests();
-        if (quests.length === 0) {
+        console.log('📦 Получено квестов:', quests.length);
+        if (!quests || quests.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; padding:40px; color:#5a6a80;">
                     <p style="font-size:20px;">📭 Нет доступных квестов</p>
@@ -29,14 +28,13 @@ async function renderCatalog(container) {
             `;
             return;
         }
-
         let html = '';
         quests.forEach(box => {
             const levelClass = box.level === 'легкий' ? 'easy' : box.level === 'средний' ? 'medium' : 'hard';
             const levelLabel = box.level === 'легкий' ? '🟢 Лёгкий' : box.level === 'средний' ? '🟡 Средний' : '🔴 Сложный';
-            const priceText = box.isPaid ? `${box.price} ₽` : 'Бесплатно';
-            const priceClass = box.isPaid ? '' : 'free';
-
+            const priceText = box.is_paid ? `${box.price} ₽` : 'Бесплатно';
+            const priceClass = box.is_paid ? '' : 'free';
+            // Используем правильные имена полей из БД (is_paid, final_coords и т.д.)
             html += `
                 <div class="quest-card fade-up">
                     <div class="corner-mark tl"></div>
@@ -44,8 +42,8 @@ async function renderCatalog(container) {
                     <div class="corner-mark bl"></div>
                     <div class="corner-mark br"></div>
                     <span class="level-badge ${levelClass}">${levelLabel}</span>
-                    <h3>${box.title}</h3>
-                    <p class="desc">${box.description}</p>
+                    <h3>${escapeHtml(box.title)}</h3>
+                    <p class="desc">${escapeHtml(box.description || '')}</p>
                     <div class="footer">
                         <span class="price ${priceClass}">${priceText}</span>
                         <a href="box.html?id=${box.id}" class="btn btn-small">Начать</a>
@@ -55,6 +53,14 @@ async function renderCatalog(container) {
         });
         container.innerHTML = html;
     } catch (e) {
+        console.error('❌ Ошибка загрузки квестов:', e);
         container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки квестов: ${e.message}</p>`;
     }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
