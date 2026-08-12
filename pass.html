@@ -21,6 +21,8 @@
                     <a href="catalog.html">Каталог</a>
                     <a href="pass.html" class="active">Пропуск</a>
                     <a href="rules.html">Правила</a>
+                    <a href="blog.html">Блог</a>
+                    <!-- Ссылка на админку УБРАНА -->
                 </div>
             </nav>
         </div>
@@ -39,9 +41,11 @@
                         </div>
                         <div class="form-group">
                             <label for="questSelect">Выберите квест</label>
-                            <select id="questSelect"></select>
+                            <select id="questSelect">
+                                <!-- Загружается из JS -->
+                            </select>
                         </div>
-                        <button class="btn btn-primary" onclick="generatePass()">🎫 Сгенерировать пропуск</button>
+                        <button class="btn btn-primary" onclick="window.generatePass()">🎫 Сгенерировать пропуск</button>
                     </div>
                     <div id="passCard" style="display: none;"></div>
                 </div>
@@ -52,12 +56,13 @@
     <footer class="main-footer">
         <div class="container">
             <p>Код города · Череповец · 2026</p>
-            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
         </div>
     </footer>
 
-    <script src="js/boxes-data.js"></script>
-    <script src="js/pass.js"></script>
+    <!-- Подключаем pass.js как модуль -->
+    <script type="module" src="js/pass.js"></script>
+
+    <!-- Бургер-меню (обычный скрипт) -->
     <script>
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
