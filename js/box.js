@@ -1,5 +1,5 @@
 // ============================================================
-//  box.js — страница квеста
+//  box.js — страница отдельного квеста (Supabase)
 // ============================================================
 
 import { getQuestById, getCluesByQuestId } from './quests-data.js';
@@ -56,12 +56,17 @@ let isLocked = false;
     document.head.appendChild(style);
 })();
 
+// ============================================================
+//  ЗАГРУЗКА СТРАНИЦЫ
+// ============================================================
 document.addEventListener('DOMContentLoaded', async function() {
     const params = new URLSearchParams(window.location.search);
     const boxId = parseInt(params.get('id'));
     if (boxId) {
         try {
+            console.log('🔄 Загрузка квеста ID:', boxId);
             currentBox = await getQuestById(boxId);
+            console.log('📦 Получен квест:', currentBox);
             if (!currentBox) {
                 document.getElementById('boxContent').innerHTML = `
                     <div class="line error">> Ошибка: бокс не найден</div>
@@ -69,11 +74,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 `;
                 return;
             }
-            if (!currentBox.clues) {
+            // Загружаем улики, если их нет
+            if (!currentBox.clues || currentBox.clues.length === 0) {
                 currentBox.clues = await getCluesByQuestId(boxId);
             }
             renderBox();
         } catch (e) {
+            console.error('❌ Ошибка загрузки квеста:', e);
             document.getElementById('boxContent').innerHTML = `
                 <div class="line error">> Ошибка загрузки квеста: ${e.message}</div>
                 <a href="catalog.html" class="terminal-link">← Вернуться в каталог</a>
@@ -87,11 +94,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// ============================================================
+//  ОТРИСОВКА КВЕСТА
+// ============================================================
 function renderBox() {
     const container = document.getElementById('boxContent');
     const box = currentBox;
 
-    if (box.isPaid && !sessionStorage.getItem(`box_paid_${box.id}`)) {
+    // Проверка оплаты
+    if (box.is_paid && !sessionStorage.getItem(`box_paid_${box.id}`)) {
         container.innerHTML = `
             <div class="line">> Этот бокс платный (${box.price} ₽)</div>
             <div class="line">> Для доступа необходимо оплатить.</div>
@@ -106,7 +117,7 @@ function renderBox() {
     let html = `
         <div class="line">> БОКС: ${box.title}</div>
         <div class="line dim">> Уровень: ${box.level}</div>
-        <div class="line dim">> ${box.description}</div>
+        <div class="line dim">> ${box.description || ''}</div>
         <div class="line" style="margin-top: 12px;">> Начинаем поиск...</div>
         <div id="stepContainer"></div>
         <div id="timerDisplay" class="line dim" style="margin-top: 12px;">⏱️ ${formatTime(timerSeconds)}</div>
@@ -128,6 +139,9 @@ function renderBox() {
     showStep(currentStep);
 }
 
+// ============================================================
+//  ПОКАЗАТЬ ШАГ (улику)
+// ============================================================
 function showStep(index) {
     const box = currentBox;
     const clues = box.clues;
@@ -144,6 +158,7 @@ function showStep(index) {
             <div class="clue-content">
     `;
 
+    // Отображение разных типов улик
     if (clue.type === 'photo') {
         const imgSrc = clue.value || 'assets/placeholder.jpg';
         html += `<img src="${imgSrc}" alt="Фото-улика" style="max-width: 100%; max-height: 300px;"><br>`;
@@ -187,6 +202,7 @@ function showStep(index) {
     `;
     container.innerHTML = html;
 
+    // Обработка ввода кода
     const checkBtn = document.getElementById('checkCodeBtn');
     const codeInput = document.getElementById('codeInput');
     const codeMsg = document.getElementById('codeMessage');
@@ -207,6 +223,7 @@ function showStep(index) {
             codeInput.disabled = true;
             checkBtn.disabled = true;
 
+            // Если есть вопрос — показываем
             if (clue.question && clue.question.trim() !== '') {
                 const questionBlock = document.getElementById('questionBlock');
                 questionBlock.style.display = 'block';
@@ -241,6 +258,7 @@ function showStep(index) {
                 });
                 setTimeout(() => answerInput.focus(), 200);
             } else {
+                // Вопроса нет → переход сразу
                 setTimeout(() => {
                     currentStep++;
                     showStep(currentStep);
@@ -261,6 +279,9 @@ function showStep(index) {
     setTimeout(() => codeInput.focus(), 200);
 }
 
+// ============================================================
+//  ФИНИШ
+// ============================================================
 function finishBox() {
     clearInterval(timerInterval);
     const container = document.getElementById('stepContainer');
@@ -270,7 +291,7 @@ function finishBox() {
             <div class="clue-content">
                 <p style="font-size: 20px; color: #ffb000;">Вы нашли все коды!</p>
                 <p>Финальные координаты клада:</p>
-                <p style="font-size: 24px; color: #00d4ff;">${currentBox.finalCoords || 'не указаны'}</p>
+                <p style="font-size: 24px; color: #00d4ff;">${currentBox.final_coords || 'не указаны'}</p>
                 <p style="color: #8aa3c0; font-size: 14px;">Отправляйся туда и забери свой приз!</p>
                 <p style="margin-top: 12px;">⏱️ Ваше время: ${formatTime(timerSeconds)}</p>
             </div>
@@ -281,6 +302,9 @@ function finishBox() {
     isFinished = true;
 }
 
+// ============================================================
+//  ОПЛАТА (заглушка)
+// ============================================================
 function payBox(boxId) {
     if (confirm(`Оплатить ${currentBox.price} ₽? (демо-режим)`)) {
         sessionStorage.setItem(`box_paid_${boxId}`, 'true');
@@ -288,6 +312,9 @@ function payBox(boxId) {
     }
 }
 
+// ============================================================
+//  ТАЙМЕР
+// ============================================================
 function updateTimerDisplay() {
     const el = document.getElementById('timerDisplay');
     if (el) el.textContent = `⏱️ ${formatTime(timerSeconds)}`;
@@ -297,4 +324,4 @@ function formatTime(sec) {
     const m = String(Math.floor(sec / 60)).padStart(2, '0');
     const s = String(sec % 60).padStart(2, '0');
     return `${m}:${s}`;
-}
+                            }
