@@ -136,12 +136,56 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
-    <script src="js/supabase-client.js"></script>
-    <script src="js/quests-data.js"></script>
-    <script src="js/news-data.js"></script>
+    <!-- ============================================================
+         ЕДИНСТВЕННЫЙ МОДУЛЬ ДЛЯ ЗАГРУЗКИ НОВОСТЕЙ И СТАТИСТИКИ
+         ============================================================ -->
+    <script type="module">
+        import { getLatestNews } from './js/news-data.js';
+        import { getQuests } from './js/quests-data.js';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Загружаем последнюю новость
+            const container = document.getElementById('latestNewsContainer');
+            try {
+                const news = await getLatestNews();
+                if (news) {
+                    container.innerHTML = `
+                        <div class="news-card">
+                            <div class="corner-mark tl"></div>
+                            <div class="corner-mark tr"></div>
+                            <div class="corner-mark bl"></div>
+                            <div class="corner-mark br"></div>
+                            <div class="date">${new Date(news.date).toLocaleDateString('ru-RU')}</div>
+                            <h3>${news.title}</h3>
+                            ${news.image ? `<img src="${news.image}" alt="Иллюстрация">` : ''}
+                            <div class="content">${news.content}</div>
+                            <a href="blog.html" class="read-more">Читать все новости →</a>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет. Добавьте первую через админку.</p>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей</p>`;
+            }
+
+            // Обновляем статистику квестов
+            try {
+                const quests = await getQuests();
+                const totalEl = document.getElementById('totalQuests');
+                if (totalEl) {
+                    totalEl.textContent = quests.length;
+                }
+            } catch (e) {
+                // Игнорируем ошибку статистики
+            }
+        });
+    </script>
+
+    <!-- ============================================================
+         БУРГЕР-МЕНЮ (обычный скрипт, не модуль)
+         ============================================================ -->
     <script>
-        // Бургер-меню
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
         burger.addEventListener('click', function() {
@@ -153,38 +197,6 @@
                 burger.classList.remove('active');
                 navLinks.classList.remove('open');
             });
-        });
-
-        // Загрузка последней новости
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('latestNewsContainer');
-            // Ждём, пока подгрузятся данные из news-data.js (глобальные функции)
-            const checkNews = setInterval(() => {
-                if (typeof getLatestNews !== 'undefined') {
-                    clearInterval(checkNews);
-                    getLatestNews().then(news => {
-                        if (news) {
-                            container.innerHTML = `
-                                <div class="news-card">
-                                    <div class="corner-mark tl"></div>
-                                    <div class="corner-mark tr"></div>
-                                    <div class="corner-mark bl"></div>
-                                    <div class="corner-mark br"></div>
-                                    <div class="date">${new Date(news.date).toLocaleDateString('ru-RU')}</div>
-                                    <h3>${news.title}</h3>
-                                    ${news.image ? `<img src="${news.image}" alt="Иллюстрация">` : ''}
-                                    <div class="content">${news.content}</div>
-                                    <a href="blog.html" class="read-more">Читать все новости →</a>
-                                </div>
-                            `;
-                        } else {
-                            container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет. Добавьте первую через админку.</p>`;
-                        }
-                    }).catch(() => {
-                        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей</p>`;
-                    });
-                }
-            }, 100);
         });
     </script>
 </body>
