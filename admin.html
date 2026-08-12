@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Минимальные стили для админки, чтобы точно работало */
+        /* Встроенные стили для админки */
         .admin-login { max-width: 400px; margin: 40px auto; text-align: center; }
         .admin-login input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; font-size: 16px; }
         .admin-login button { padding: 12px 24px; background: #ff6b35; color: #000; border: none; font-weight: 700; cursor: pointer; }
@@ -59,9 +59,7 @@
 
     <main>
         <div class="container" style="padding: 20px 0;">
-            <div id="adminContent">
-                <!-- Загружается из admin.js -->
-            </div>
+            <div id="adminContent"></div>
         </div>
     </main>
 
@@ -71,10 +69,8 @@
         </div>
     </footer>
 
-    <!-- Подключаем админку как модуль -->
     <script type="module" src="js/admin.js"></script>
 
-    <!-- Бургер-меню -->
     <script>
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
