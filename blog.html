@@ -36,7 +36,7 @@
                     <div class="section-line"></div>
                 </div>
                 <div id="blogList">
-                    <!-- Загружается из скрипта ниже -->
+                    <!-- Загружается из JS -->
                 </div>
             </div>
         </section>
@@ -45,15 +45,48 @@
     <footer class="main-footer">
         <div class="container">
             <p>Код города · Череповец · 2026</p>
-            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
         </div>
     </footer>
 
-    <!-- Скрипты -->
-    <script src="js/supabase-client.js"></script>
-    <script src="js/news-data.js"></script>
+    <!-- ЕДИНСТВЕННЫЙ СКРИПТ — МОДУЛЬ -->
+    <script type="module">
+        import { getNews } from './js/news-data.js';
+
+        async function renderBlog() {
+            const container = document.getElementById('blogList');
+            try {
+                const news = await getNews();
+                if (!news || news.length === 0) {
+                    container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет.</p>`;
+                    return;
+                }
+                let html = '<div class="news-grid">';
+                for (const item of news) {
+                    html += `
+                        <div class="news-card">
+                            <div class="corner-mark tl"></div>
+                            <div class="corner-mark tr"></div>
+                            <div class="corner-mark bl"></div>
+                            <div class="corner-mark br"></div>
+                            <div class="date">${new Date(item.date).toLocaleDateString('ru-RU')}</div>
+                            <h3>${item.title}</h3>
+                            ${item.image ? `<img src="${item.image}" alt="Иллюстрация">` : ''}
+                            <div class="content">${item.content}</div>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей: ${e.message}</p>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderBlog);
+    </script>
+
+    <!-- Бургер-меню (обычный скрипт, не модуль) -->
     <script>
-        // Бургер-меню
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
         burger.addEventListener('click', function() {
@@ -65,41 +98,6 @@
                 burger.classList.remove('active');
                 navLinks.classList.remove('open');
             });
-        });
-
-        // Загрузка всех новостей
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('blogList');
-            const checkNews = setInterval(() => {
-                if (typeof getNews !== 'undefined') {
-                    clearInterval(checkNews);
-                    getNews().then(news => {
-                        if (news.length === 0) {
-                            container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет.</p>`;
-                            return;
-                        }
-                        let html = '<div class="news-grid">';
-                        news.forEach(item => {
-                            html += `
-                                <div class="news-card">
-                                    <div class="corner-mark tl"></div>
-                                    <div class="corner-mark tr"></div>
-                                    <div class="corner-mark bl"></div>
-                                    <div class="corner-mark br"></div>
-                                    <div class="date">${new Date(item.date).toLocaleDateString('ru-RU')}</div>
-                                    <h3>${item.title}</h3>
-                                    ${item.image ? `<img src="${item.image}" alt="Иллюстрация">` : ''}
-                                    <div class="content">${item.content}</div>
-                                </div>
-                            `;
-                        });
-                        html += '</div>';
-                        container.innerHTML = html;
-                    }).catch(() => {
-                        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей</p>`;
-                    });
-                }
-            }, 100);
         });
     </script>
 </body>
