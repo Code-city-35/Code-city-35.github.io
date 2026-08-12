@@ -3,8 +3,8 @@
 // ============================================================
 
 // ⚠️ ВСТАВЬ СВОИ ДАННЫЕ ИЗ SUPABASE
-const SUPABASE_URL = 'https://gyjdhxknzijscmjfehbm.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Iy1IDODIWq4HW24ncRGUdA_dT944nP4';
+const SUPABASE_URL = 'https://твой-проект.supabase.co';
+const SUPABASE_ANON_KEY = 'твой-аннон-ключ';
 
 // ============================================================
 
@@ -16,7 +16,7 @@ const readyCallbacks = [];
 function initSupabase() {
     if (clientReady) return;
     if (!SUPABASE_URL || SUPABASE_URL === 'https://твой-проект.supabase.co' || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'твой-аннон-ключ') {
-        console.warn('⚠️ Настройки Supabase не заполнены');
+        console.warn('⚠️ Настройки Supabase не заполнены, используем localStorage');
         clientReady = true;
         return;
     }
@@ -42,7 +42,7 @@ function initSupabase() {
         readyCallbacks.forEach(cb => cb());
     };
     script.onerror = () => {
-        console.warn('⚠️ Не удалось загрузить Supabase');
+        console.warn('⚠️ Не удалось загрузить Supabase, используем localStorage');
         clientReady = true;
         readyCallbacks.forEach(cb => cb());
     };
