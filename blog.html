@@ -12,7 +12,7 @@
     <header class="main-header">
         <div class="container">
             <div class="logo">
-                <img src="assets/logo.svg" alt="Код города" class="logo-img" style="height:60px; width:auto;">
+                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:60px; width:auto;">
             </div>
             <nav>
                 <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
@@ -35,7 +35,9 @@
                     <div class="section-title">📰 Все <span>новости</span></div>
                     <div class="section-line"></div>
                 </div>
-                <div id="blogList"></div>
+                <div id="blogList">
+                    <!-- Загружается из скрипта ниже -->
+                </div>
             </div>
         </section>
     </main>
@@ -47,38 +49,10 @@
         </div>
     </footer>
 
-    <script type="module">
-        import { getNews } from './js/news-data.js';
-        document.addEventListener('DOMContentLoaded', async function() {
-            const container = document.getElementById('blogList');
-            try {
-                const news = await getNews();
-                if (news.length === 0) {
-                    container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет.</p>`;
-                    return;
-                }
-                let html = '<div class="news-grid">';
-                news.forEach(item => {
-                    html += `
-                        <div class="news-card">
-                            <div class="corner-mark tl"></div>
-                            <div class="corner-mark tr"></div>
-                            <div class="corner-mark bl"></div>
-                            <div class="corner-mark br"></div>
-                            <div class="date">${new Date(item.date).toLocaleDateString('ru-RU')}</div>
-                            <h3>${item.title}</h3>
-                            ${item.image ? `<img src="${item.image}" alt="Иллюстрация">` : ''}
-                            <div class="content">${item.content}</div>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-                container.innerHTML = html;
-            } catch (e) {
-                container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей: ${e.message}</p>`;
-            }
-        });
-
+    <!-- Скрипты -->
+    <script src="js/supabase-client.js"></script>
+    <script src="js/news-data.js"></script>
+    <script>
         // Бургер-меню
         const burger = document.getElementById('burgerBtn');
         const navLinks = document.getElementById('navLinks');
@@ -91,6 +65,41 @@
                 burger.classList.remove('active');
                 navLinks.classList.remove('open');
             });
+        });
+
+        // Загрузка всех новостей
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('blogList');
+            const checkNews = setInterval(() => {
+                if (typeof getNews !== 'undefined') {
+                    clearInterval(checkNews);
+                    getNews().then(news => {
+                        if (news.length === 0) {
+                            container.innerHTML = `<p style="color:#5a6a80;">Новостей пока нет.</p>`;
+                            return;
+                        }
+                        let html = '<div class="news-grid">';
+                        news.forEach(item => {
+                            html += `
+                                <div class="news-card">
+                                    <div class="corner-mark tl"></div>
+                                    <div class="corner-mark tr"></div>
+                                    <div class="corner-mark bl"></div>
+                                    <div class="corner-mark br"></div>
+                                    <div class="date">${new Date(item.date).toLocaleDateString('ru-RU')}</div>
+                                    <h3>${item.title}</h3>
+                                    ${item.image ? `<img src="${item.image}" alt="Иллюстрация">` : ''}
+                                    <div class="content">${item.content}</div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
+                    }).catch(() => {
+                        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки новостей</p>`;
+                    });
+                }
+            }, 100);
         });
     </script>
 </body>
