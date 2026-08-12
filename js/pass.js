@@ -1,48 +1,43 @@
 // ============================================================
-//  pass.js — генерация пропуска (Код города)
-//  Без закорючки, только текст подписи
+//  pass.js — генерация пропуска (с загрузкой квестов из Supabase)
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', function() {
+import { getQuests } from './quests-data.js';
+
+// ============================================================
+//  ЗАГРУЗКА СПИСКА КВЕСТОВ В SELECT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async function() {
     const select = document.getElementById('questSelect');
-    if (!select) {
-        console.error('❌ Элемент #questSelect не найден на странице');
-        return;
-    }
+    if (!select) return;
 
-    const boxes = getBoxes();
-    console.log('📦 Загружено квестов для пропуска:', boxes.length);
-
-    select.innerHTML = '<option value="">— Выберите квест —</option>';
-
-    if (boxes.length === 0) {
-        const option = document.createElement('option');
-        option.value = '';
-        option.textContent = '❌ Нет доступных квестов';
-        option.disabled = true;
-        select.appendChild(option);
-        return;
-    }
-
-    boxes.forEach(box => {
-        const option = document.createElement('option');
-        option.value = box.id;
-        option.textContent = `${box.icon || '📦'} ${box.title}`;
-        select.appendChild(option);
-    });
-
-    const nameInput = document.getElementById('playerName');
-    if (nameInput) {
-        nameInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') generatePass();
+    try {
+        const quests = await getQuests();
+        select.innerHTML = '<option value="">— Выберите квест —</option>';
+        if (!quests || quests.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = '❌ Нет доступных квестов';
+            option.disabled = true;
+            select.appendChild(option);
+            return;
+        }
+        quests.forEach(q => {
+            const option = document.createElement('option');
+            option.value = q.id;
+            option.textContent = `${q.icon || '📦'} ${q.title}`;
+            select.appendChild(option);
         });
+    } catch (e) {
+        select.innerHTML = '<option value="">❌ Ошибка загрузки</option>';
+        console.error('Ошибка загрузки квестов:', e);
     }
 });
 
 // ============================================================
 //  ГЕНЕРАЦИЯ ПРОПУСКА
 // ============================================================
-function generatePass() {
+window.generatePass = async function() {
     const nameInput = document.getElementById('playerName');
     const questSelect = document.getElementById('questSelect');
     const passCard = document.getElementById('passCard');
@@ -56,7 +51,7 @@ function generatePass() {
     const questId = parseInt(questSelect.value);
 
     if (!name) {
-        alert('Введите ваш никнейм');
+        alert('Введите ваше имя');
         nameInput.focus();
         return;
     }
@@ -66,87 +61,82 @@ function generatePass() {
         return;
     }
 
-    const boxes = getBoxes();
-    const quest = boxes.find(b => b.id === questId);
-    if (!quest) {
-        alert('Квест не найден. Попробуйте обновить страницу.');
-        return;
+    try {
+        const quests = await getQuests();
+        const quest = quests.find(q => q.id === questId);
+        if (!quest) {
+            alert('Квест не найден. Попробуйте обновить страницу.');
+            return;
+        }
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const passId = `PASS-${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`;
+        const expires = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const expiresStr = expires.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+        const dayOfWeek = weekdays[now.getDay()];
+        const signatureText = 'Code-city-35';
+
+        passCard.innerHTML = `
+            <div class="pass-card" id="passCardInner">
+                <div class="pass-header">
+                    <span class="logo">🗺️ Код города</span>
+                    <span class="stamp">#${passId}</span>
+                </div>
+                <div class="pass-body">
+                    <div class="field full">
+                        <span class="label">Участник</span>
+                        <span class="value">${escapeHtml(name)}</span>
+                    </div>
+                    <div class="field">
+                        <span class="label">Квест</span>
+                        <span class="value">${escapeHtml(quest.icon || '📦')} ${escapeHtml(quest.title)}</span>
+                    </div>
+                    <div class="field">
+                        <span class="label">Уровень</span>
+                        <span class="value">${escapeHtml(quest.level || 'средний')}</span>
+                    </div>
+                    <div class="field">
+                        <span class="label">Дата</span>
+                        <span class="value">${dateStr} (${dayOfWeek})</span>
+                    </div>
+                    <div class="field">
+                        <span class="label">Время</span>
+                        <span class="value">${timeStr}</span>
+                    </div>
+                    <div class="field full">
+                        <span class="label">Действителен до</span>
+                        <span class="value">${expiresStr} 23:59</span>
+                    </div>
+                </div>
+                <div class="signature-line">
+                    <div class="signature-drawing">
+                        <span class="signature-name">${escapeHtml(signatureText)}</span>
+                        <span class="signature-label">Уполномоченное лицо</span>
+                    </div>
+                </div>
+                <div class="pass-footer">
+                    <span class="signature">◈ Организатор: Команда Код города</span>
+                </div>
+                <div class="pass-disclaimer">
+                    * Участник городского квеста «Код города». Игрок ищет QR-коды и выполняет задания на городских объектах. 
+                    Действует в рамках официальной игры и законодательства РФ. Данный пропуск не дает права проходить на частные и/или режимные объекты. При возникновении вопросов обращайтесь к организатору: 
+                    <span style="color: #00ff41;">code-city@mail.ru</span>
+                </div>
+            </div>
+            <div class="pass-actions">
+                <button onclick="downloadPass()">📥 Скачать</button>
+                <button onclick="printPass()">🖨️ Печать</button>
+            </div>
+        `;
+
+        passCard.style.display = 'block';
+    } catch (e) {
+        alert('Ошибка загрузки квеста: ' + e.message);
     }
-
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    const passId = `PASS-${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`;
-    const expires = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const expiresStr = expires.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-    const dayOfWeek = weekdays[now.getDay()];
-
-    // Подпись — только текст, без закорючки
-    const signatureText = 'Code-city-35';
-
-    passCard.innerHTML = `
-        <div class="pass-card" id="passCardInner">
-            <div class="pass-header">
-                <span class="logo">🗺️ Код города</span>
-                <span class="stamp">#${passId}</span>
-            </div>
-
-            <div class="pass-body">
-                <div class="field full">
-                    <span class="label">Участник</span>
-                    <span class="value">${escapeHtml(name)}</span>
-                </div>
-                <div class="field">
-                    <span class="label">Квест</span>
-                    <span class="value">${escapeHtml(quest.icon || '📦')} ${escapeHtml(quest.title)}</span>
-                </div>
-                <div class="field">
-                    <span class="label">Уровень</span>
-                    <span class="value">${escapeHtml(quest.level || 'средний')}</span>
-                </div>
-                <div class="field">
-                    <span class="label">Дата</span>
-                    <span class="value">${dateStr} (${dayOfWeek})</span>
-                </div>
-                <div class="field">
-                    <span class="label">Время</span>
-                    <span class="value">${timeStr}</span>
-                </div>
-                <div class="field full">
-                    <span class="label">Действителен до</span>
-                    <span class="value">${expiresStr} 23:59</span>
-                </div>
-            </div>
-
-            <!-- Подпись (только текст) -->
-            <div class="signature-line">
-                <div class="signature-drawing">
-                    <span class="signature-name">${escapeHtml(signatureText)}</span>
-                    <span class="signature-label">Уполномоченное лицо</span>
-                </div>
-            </div>
-
-            <div class="pass-footer">
-                <span class="signature">◈ Организатор: Команда Код города</span>
-            </div>
-
-            <!-- Сноска для сотрудников -->
-            <div class="pass-disclaimer">
-                * Участник городского квеста «Код города». Игрок ищет QR-коды и выполняет задания на городских объектах. 
-                Действует в рамках официальной игры и законодательства РФ. Данный пропуск не дает права проходить на частные и/или режимные объекты. При возникновении вопросов обращайтесь к организатору: 
-                <span style="color: #00ff41;">code-city@mail.ru</span>
-            </div>
-        </div>
-
-        <div class="pass-actions">
-            <button onclick="downloadPass()">📥 Скачать</button>
-            <button onclick="printPass()">🖨️ Печать</button>
-        </div>
-    `;
-
-    passCard.style.display = 'block';
-}
+};
 
 // ============================================================
 //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -158,6 +148,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Функции скачивания и печати оставляем без изменений
 function downloadPass() {
     const card = document.getElementById('passCardInner');
     if (!card) return;
@@ -208,20 +199,11 @@ function printPass() {
                     .pass-card .pass-body .field .value { font-size: 14px; color: #000; font-weight: 600; font-family: monospace; }
                     .pass-card .pass-body .field.full { grid-column: 1 / -1; }
                     .pass-card .signature-line { margin-top: 6px; border-top: 1px solid #ccc; padding-top: 6px; display: flex; justify-content: flex-end; }
-                    .pass-card .signature-line .signature-name { 
-                        font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; 
-                        font-size: 22px; color: #000; 
-                        letter-spacing: 1px; 
-                        display: block; 
-                        text-align: right;
-                    }
+                    .pass-card .signature-line .signature-name { font-family: 'Brush Script MT', cursive; font-size: 22px; color: #000; display: block; text-align: right; }
                     .pass-card .signature-line .signature-label { font-size: 9px; text-transform: uppercase; color: #666; margin-top: 2px; display: block; text-align: right; }
                     .pass-card .pass-footer { border-top: 1px solid #ccc; padding-top: 10px; font-size: 11px; color: #666; }
                     .pass-card .pass-footer .signature { color: #000; opacity: 0.6; }
-                    .pass-card .pass-disclaimer { 
-                        font-size: 8px; color: #555; border-top: 1px solid #ccc; padding-top: 8px; margin-top: 10px; 
-                        font-family: Arial, sans-serif; line-height: 1.4; 
-                    }
+                    .pass-card .pass-disclaimer { font-size: 8px; color: #555; border-top: 1px solid #ccc; padding-top: 8px; margin-top: 10px; font-family: Arial, sans-serif; line-height: 1.4; }
                     .pass-card .pass-disclaimer span { color: #000 !important; font-weight: bold; }
                 </style>
             </head>
@@ -234,4 +216,4 @@ function printPass() {
         </html>
     `);
     printWindow.document.close();
-}
+            }
