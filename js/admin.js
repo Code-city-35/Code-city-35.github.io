@@ -554,3 +554,20 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
         }
+// ============================================================
+//  ДЕЛАЕМ ФУНКЦИИ ГЛОБАЛЬНЫМИ ДЛЯ onclick
+// ============================================================
+window.handleLogin = handleLogin;
+window.switchTab = switchTab;
+window.openQuestModal = openQuestModal;
+window.saveQuest = saveQuest;
+window.closeQuestModal = closeQuestModal;
+window.deleteQuestItem = deleteQuestItem;
+window.openNewsModal = openNewsModal;
+window.saveNewsItem = saveNewsItem;
+window.closeNewsModal = closeNewsModal;
+window.deleteNewsItem = deleteNewsItem;
+window.addClueBlock = addClueBlock;
+window.removeClueBlock = removeClueBlock;
+window.logout = logout;
+}
