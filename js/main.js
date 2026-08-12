@@ -1,5 +1,5 @@
 // ============================================================
-//  main.js — каталог квестов (использует Supabase)
+//  main.js — каталог квестов
 // ============================================================
 
 import { getQuests } from './quests-data.js';
@@ -10,22 +10,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         await renderCatalog(catalogContainer);
     }
 
-    const statEl = document.getElementById('totalBoxes');
+    const statEl = document.getElementById('totalQuests');
     if (statEl) {
-        const boxes = await getQuests();
-        statEl.textContent = boxes.length + '+';
+        const quests = await getQuests();
+        statEl.textContent = quests.length;
     }
 });
 
 async function renderCatalog(container) {
     try {
-        const boxes = await getQuests();
-
-        if (boxes.length === 0) {
+        const quests = await getQuests();
+        if (quests.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; padding:40px; color:#5a6a80;">
                     <p style="font-size:20px;">📭 Нет доступных квестов</p>
-                    <p style="font-size:14px; margin-top:8px;">Загляните в админку, чтобы добавить</p>
                     <a href="admin.html" class="btn btn-primary" style="margin-top:16px; display:inline-block;">⚙️ Перейти в админку</a>
                 </div>
             `;
@@ -33,7 +31,7 @@ async function renderCatalog(container) {
         }
 
         let html = '';
-        boxes.forEach(box => {
+        quests.forEach(box => {
             const levelClass = box.level === 'легкий' ? 'easy' : box.level === 'средний' ? 'medium' : 'hard';
             const levelLabel = box.level === 'легкий' ? '🟢 Лёгкий' : box.level === 'средний' ? '🟡 Средний' : '🔴 Сложный';
             const priceText = box.isPaid ? `${box.price} ₽` : 'Бесплатно';
