@@ -4,71 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Квест — Код города</title>
-    <style>
-        /* ===== БАЗОВЫЙ CSS ДЛЯ КВЕСТА ===== */
-        body {
-            background: #080c1a;
-            color: #e8edf2;
-            font-family: 'Inter', sans-serif;
-            padding: 20px;
-        }
-        .terminal {
-            max-width: 700px;
-            margin: 0 auto;
-            background: rgba(16, 24, 44, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px;
-        }
-        .line {
-            margin-bottom: 10px;
-            color: #e8edf2;
-        }
-        .line.dim { color: #5a6a80; }
-        .line .error { color: #ff6b6b; }
-        .line .success { color: #6fcf97; }
-        .input-row input {
-            background: rgba(8, 12, 26, 0.6);
-            border: 1px solid rgba(255,255,255,0.06);
-            color: #e8edf2;
-            padding: 8px;
-            width: 200px;
-        }
-        .input-row button {
-            background: #ff6b35;
-            color: #080c1a;
-            border: none;
-            padding: 8px 20px;
-            cursor: pointer;
-        }
-        .clue-block {
-            background: rgba(16, 24, 44, 0.4);
-            padding: 20px;
-            margin: 16px 0;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .clue-label { color: #5a6a80; font-size: 12px; text-transform: uppercase; }
-        .terminal-link { color: #ff6b35; text-decoration: underline; }
-        .terminal-btn {
-            background: #ff6b35;
-            color: #080c1a;
-            border: none;
-            padding: 8px 20px;
-            cursor: pointer;
-        }
-        .terminal-btn.danger {
-            background: transparent;
-            color: #ff6b6b;
-            border: 1px solid #ff6b6b;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="boxContent" class="terminal">
-        <!-- Сюда box.js вставит содержимое -->
-    </div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/logo.png" alt="Код города" class="logo-img" style="height:60px; width:auto;">
+            </div>
+            <nav>
+                <button class="burger" id="burgerBtn"><span></span><span></span><span></span></button>
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html">Главная</a>
+                    <a href="catalog.html">Каталог</a>
+                    <a href="pass.html">Пропуск</a>
+                    <a href="rules.html">Правила</a>
+                    <a href="blog.html">Блог</a>
+                    <a href="admin.html" class="admin-link">⚙️ Админка</a>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-    <script type="module" src="js/box.js"></script>
+    <main>
+        <section class="quest-page">
+            <div class="container">
+                <div id="boxContent" class="terminal">
+                    <!-- Загружается из box.js -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>Код города · Череповец · 2026</p>
+            <p class="footer-small">* Участие в квесте добровольное. Будьте внимательны на улицах.</p>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
     <script src="js/supabase-client.js"></script>
     <script src="js/quests-data.js"></script>
+    <script src="js/box.js"></script>
+    <script>
+        // Бургер-меню
+        const burger = document.getElementById('burgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html>
