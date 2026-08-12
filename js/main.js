@@ -1,4 +1,7 @@
-// main.js — загружает квесты из Supabase и отображает в каталоге
+// ============================================================
+//  main.js — каталог квестов с отладкой на экране
+// ============================================================
+
 import { getQuests } from './quests-data.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -6,7 +9,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (catalogContainer) {
         await renderCatalog(catalogContainer);
     }
-    // Если есть элемент для статистики на главной
     const statEl = document.getElementById('totalQuests');
     if (statEl) {
         const quests = await getQuests();
@@ -16,9 +18,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function renderCatalog(container) {
     try {
-        console.log('🔄 Загрузка квестов...');
         const quests = await getQuests();
-        console.log('📦 Получено квестов:', quests.length);
         if (!quests || quests.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; padding:40px; color:#5a6a80;">
@@ -34,7 +34,6 @@ async function renderCatalog(container) {
             const levelLabel = box.level === 'легкий' ? '🟢 Лёгкий' : box.level === 'средний' ? '🟡 Средний' : '🔴 Сложный';
             const priceText = box.is_paid ? `${box.price} ₽` : 'Бесплатно';
             const priceClass = box.is_paid ? '' : 'free';
-            // Используем правильные имена полей из БД (is_paid, final_coords и т.д.)
             html += `
                 <div class="quest-card fade-up">
                     <div class="corner-mark tl"></div>
@@ -53,8 +52,7 @@ async function renderCatalog(container) {
         });
         container.innerHTML = html;
     } catch (e) {
-        console.error('❌ Ошибка загрузки квестов:', e);
-        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка загрузки квестов: ${e.message}</p>`;
+        container.innerHTML = `<p style="color:#ff6b6b;">Ошибка: ${e.message}</p>`;
     }
 }
 
