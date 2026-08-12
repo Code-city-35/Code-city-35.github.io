@@ -1,7 +1,3 @@
-// ============================================================
-//  main.js — каталог квестов с отладкой на экране
-// ============================================================
-
 import { getQuests } from './quests-data.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
