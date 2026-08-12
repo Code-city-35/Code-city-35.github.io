@@ -1,15 +1,10 @@
-// ============================================================
-//  admin.js — Админка с Supabase
-// ============================================================
-
-import { getSupabaseClient, waitForSupabase, isSupabaseReady } from './supabase-client.js';
+import { getQuests, addQuest, updateQuest, deleteQuest, getQuestById } from './quests-data.js';
+import { getNews, addNews, updateNews, deleteNews } from './news-data.js';
 
 const ADMIN_PASSWORD = 'admin123';
-let editingId = null;
+let editingQuestId = null;
+let editingNewsId = null;
 
-// ============================================================
-//  ЛОГИН
-// ============================================================
 function showLogin() {
     document.getElementById('adminContent').innerHTML = `
         <div class="admin-login">
@@ -17,126 +12,105 @@ function showLogin() {
             <p style="color:#8a9bb5;">Пароль: admin123</p>
             <input type="password" id="adminPass" placeholder="Пароль" autofocus>
             <button id="loginBtn">Войти</button>
-            <div id="loginError" style="color:#ff6b6b; margin-top:8px; display:none;">❌ Неверный пароль</div>
+            <div id="loginError" style="color:#ff6b6b; display:none;">❌ Неверный пароль</div>
         </div>
     `;
     document.getElementById('loginBtn').onclick = () => {
-        const pass = document.getElementById('adminPass').value;
-        if (pass === ADMIN_PASSWORD) {
+        if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
             sessionStorage.setItem('adminLoggedIn', 'true');
-            showPanel();
+            showAdminPanel();
         } else {
             document.getElementById('loginError').style.display = 'block';
         }
     };
-    document.getElementById('adminPass').addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('loginBtn').click();
-    });
 }
 
-// ============================================================
-//  ПАНЕЛЬ
-// ============================================================
-function showPanel() {
+function showAdminPanel() {
     document.getElementById('adminContent').innerHTML = `
         <div class="admin-panel">
             <div class="admin-toolbar">
-                <h3 style="color:#ff6b35;">⚙️ Квесты</h3>
+                <h3 style="color:#ff6b35;">⚙️ Управление</h3>
                 <div>
-                    <button id="addBtn">➕ Добавить</button>
+                    <button id="tabQuests">📋 Квесты</button>
+                    <button id="tabNews">📰 Новости</button>
                     <button id="logoutBtn" class="danger">🚪 Выйти</button>
                 </div>
             </div>
-            <div id="list"></div>
+            <div id="adminTabContent"></div>
         </div>
     `;
-    document.getElementById('addBtn').onclick = () => openModal();
+    document.getElementById('tabQuests').onclick = () => renderQuests();
+    document.getElementById('tabNews').onclick = () => renderNews();
     document.getElementById('logoutBtn').onclick = () => {
         sessionStorage.removeItem('adminLoggedIn');
         location.reload();
     };
-    loadList();
+    renderQuests();
 }
 
 // ============================================================
-//  ЗАГРУЗКА СПИСКА
+//  КВЕСТЫ
 // ============================================================
-async function loadList() {
-    const list = document.getElementById('list');
+async function renderQuests() {
+    const container = document.getElementById('adminTabContent');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+            <h3 style="color:#fff;">📋 Квесты</h3>
+            <button id="addQuestBtn">➕ Добавить</button>
+        </div>
+        <div id="questList"></div>
+    `;
+    document.getElementById('addQuestBtn').onclick = () => openQuestModal();
+    await loadQuests();
+}
+
+async function loadQuests() {
+    const list = document.getElementById('questList');
     try {
-        await waitForSupabase();
-        if (!isSupabaseReady()) {
-            list.innerHTML = `<p style="color:#ff6b6b;">⚠️ Supabase не подключён. Проверь ключи в supabase-client.js</p>`;
-            return;
-        }
-        const client = getSupabaseClient();
-        const { data, error } = await client.from('quests').select('*').order('id');
-        if (error) throw error;
-        if (!data || data.length === 0) {
-            list.innerHTML = `<p style="color:#5a6a80;">Нет квестов. Добавьте первый!</p>`;
+        const quests = await getQuests();
+        if (!quests || quests.length === 0) {
+            list.innerHTML = '<p style="color:#5a6a80;">Нет квестов</p>';
             return;
         }
         let html = '';
-        for (const q of data) {
-            const { data: clues } = await client.from('clues').select('*').eq('quest_id', q.id);
-            const count = clues ? clues.length : 0;
+        for (const q of quests) {
+            const count = q.clues ? q.clues.length : 0;
             html += `
                 <div class="admin-item">
-                    <div class="info">
-                        <div class="title">${q.title}</div>
-                        <div class="sub">${count} улик · ${q.is_paid ? q.price + ' ₽' : 'Бесплатно'}</div>
-                    </div>
+                    <div class="info"><div class="title">${q.title}</div><div class="sub">${count} улик · ${q.is_paid ? q.price + ' ₽' : 'Бесплатно'}</div></div>
                     <div class="actions">
-                        <button class="edit" data-id="${q.id}">✏️</button>
-                        <button class="delete danger" data-id="${q.id}">🗑️</button>
+                        <button class="edit-quest" data-id="${q.id}">✏️</button>
+                        <button class="delete-quest danger" data-id="${q.id}">🗑️</button>
                     </div>
                 </div>
             `;
         }
         list.innerHTML = html;
-        list.querySelectorAll('.edit').forEach(btn => btn.onclick = () => openModal(parseInt(btn.dataset.id)));
-        list.querySelectorAll('.delete').forEach(btn => btn.onclick = () => deleteQuest(parseInt(btn.dataset.id)));
+        list.querySelectorAll('.edit-quest').forEach(btn => btn.onclick = () => openQuestModal(parseInt(btn.dataset.id)));
+        list.querySelectorAll('.delete-quest').forEach(btn => btn.onclick = () => deleteQuestItem(parseInt(btn.dataset.id)));
     } catch (e) {
         list.innerHTML = `<p style="color:#ff6b6b;">Ошибка: ${e.message}</p>`;
     }
 }
 
-// ============================================================
-//  МОДАЛКА
-// ============================================================
-async function openModal(id = null) {
-    editingId = id;
+async function openQuestModal(id = null) {
+    editingQuestId = id;
     let quest = null;
     let clues = [];
     if (id) {
-        const client = getSupabaseClient();
-        const { data } = await client.from('quests').select('*').eq('id', id).single();
-        quest = data;
-        const { data: c } = await client.from('clues').select('*').eq('quest_id', id).order('order_index');
-        clues = c || [];
+        quest = await getQuestById(id);
+        clues = quest?.clues || [];
     }
     const title = quest ? '✏️ Редактировать' : '➕ Новый квест';
-
-    let cluesHtml = '';
-    if (clues.length === 0) {
-        cluesHtml = generateClueBlock(0, null);
-    } else {
-        clues.forEach((c, i) => cluesHtml += generateClueBlock(i, c));
-    }
+    let cluesHtml = clues.length === 0 ? generateClueBlock(0, null) : clues.map((c, i) => generateClueBlock(i, c)).join('');
 
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
         <div class="modal">
             <h3>${title}</h3>
-            <div class="field">
-                <label>Название</label>
-                <input id="fTitle" value="${quest ? quest.title : ''}" placeholder="Название квеста">
-            </div>
-            <div class="field">
-                <label>Описание</label>
-                <input id="fDesc" value="${quest ? quest.description : ''}" placeholder="Описание">
-            </div>
+            <div class="field"><label>Название</label><input id="fTitle" value="${quest?.title || ''}"></div>
+            <div class="field"><label>Описание</label><input id="fDesc" value="${quest?.description || ''}"></div>
             <div class="field">
                 <label>Уровень</label>
                 <select id="fLevel">
@@ -145,88 +119,59 @@ async function openModal(id = null) {
                     <option value="сложный" ${quest?.level === 'сложный' ? 'selected' : ''}>Сложный</option>
                 </select>
             </div>
-            <div class="field">
-                <label><input type="checkbox" id="fIsPaid" ${quest?.is_paid ? 'checked' : ''}> Платный</label>
-            </div>
-            <div class="field" id="priceField" style="${quest?.is_paid ? 'display:block' : 'display:none'}">
-                <label>Цена (₽)</label>
-                <input type="number" id="fPrice" value="${quest?.price || 0}">
-            </div>
-            <div class="field">
-                <label>Финальные координаты</label>
-                <input id="fCoords" value="${quest?.final_coords || ''}" placeholder="59.1200, 37.9050">
-            </div>
+            <div class="field"><label><input type="checkbox" id="fIsPaid" ${quest?.is_paid ? 'checked' : ''}> Платный</label></div>
+            <div class="field" id="priceField" style="${quest?.is_paid ? 'display:block' : 'display:none'}"><label>Цена</label><input type="number" id="fPrice" value="${quest?.price || 0}"></div>
+            <div class="field"><label>Координаты</label><input id="fCoords" value="${quest?.final_coords || ''}"></div>
             <div class="field">
                 <label>Улики</label>
                 <div id="cluesContainer">${cluesHtml}</div>
                 <button type="button" id="addClueBtn" style="margin-top:8px;">➕ Добавить улику</button>
             </div>
             <div class="modal-actions">
-                <button class="cancel" id="closeModalBtn">Отмена</button>
-                <button class="save" id="saveBtn">💾 Сохранить</button>
+                <button class="cancel" id="closeModal">Отмена</button>
+                <button class="save" id="saveQuestBtn">💾 Сохранить</button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
-
-    document.getElementById('closeModalBtn').onclick = () => modal.remove();
-    document.getElementById('saveBtn').onclick = saveQuest;
-
-    const paid = document.getElementById('fIsPaid');
-    const priceField = document.getElementById('priceField');
-    paid.onchange = () => priceField.style.display = paid.checked ? 'block' : 'none';
-
+    document.getElementById('closeModal').onclick = () => modal.remove();
+    document.getElementById('saveQuestBtn').onclick = saveQuest;
     document.getElementById('addClueBtn').onclick = () => {
-        const container = document.getElementById('cluesContainer');
-        container.insertAdjacentHTML('beforeend', generateClueBlock(container.children.length, null));
+        document.getElementById('cluesContainer').insertAdjacentHTML('beforeend', generateClueBlock(document.querySelectorAll('.clue-block').length, null));
     };
-
     document.querySelectorAll('.remove-clue').forEach(btn => {
         btn.onclick = function() {
-            const block = this.closest('.clue-block');
-            if (document.querySelectorAll('.clue-block').length <= 1) {
-                alert('Должна быть хотя бы одна улика');
-                return;
-            }
-            block.remove();
-            document.querySelectorAll('.clue-block').forEach((el, i) => {
-                el.querySelector('.clue-index').textContent = `Улика #${i+1}`;
-            });
+            if (document.querySelectorAll('.clue-block').length <= 1) { alert('Должна быть хотя бы одна улика'); return; }
+            this.closest('.clue-block').remove();
+            document.querySelectorAll('.clue-block').forEach((el, i) => el.querySelector('.clue-index').textContent = `Улика #${i+1}`);
         };
     });
+    const paid = document.getElementById('fIsPaid');
+    paid.onchange = () => document.getElementById('priceField').style.display = paid.checked ? 'block' : 'none';
 }
 
 function generateClueBlock(index, clue) {
-    const type = clue ? clue.type : 'photo';
-    const value = clue ? clue.value || '' : '';
-    const caption = clue ? clue.caption || '' : '';
-    const code = clue ? clue.code || '' : '';
-    const question = clue ? clue.question || '' : '';
-    const answer = clue ? clue.answer || '' : '';
-
+    const type = clue?.type || 'photo';
     return `
         <div class="clue-block">
             <div style="display:flex; justify-content:space-between;">
-                <span class="clue-index" style="color:#4a5a6e;">Улика #${index+1}</span>
-                <button type="button" class="remove-clue" style="background:transparent; border:1px solid #ff6b6b; color:#ff6b6b; padding:0 8px; cursor:pointer;">✕</button>
+                <span class="clue-index">Улика #${index+1}</span>
+                <button type="button" class="remove-clue" style="background:transparent; border:1px solid #ff6b6b; color:#ff6b6b; padding:0 8px;">✕</button>
             </div>
             <div class="clue-row">
                 <div><label>Тип</label><select class="clue-type"><option value="photo" ${type==='photo'?'selected':''}>Фото</option><option value="text" ${type==='text'?'selected':''}>Текст</option><option value="coords" ${type==='coords'?'selected':''}>Координаты</option><option value="video" ${type==='video'?'selected':''}>Видео</option><option value="audio" ${type==='audio'?'selected':''}>Аудио</option></select></div>
-                <div><label>Код</label><input class="clue-code" value="${code}" placeholder="CODE-01"></div>
+                <div><label>Код</label><input class="clue-code" value="${clue?.code || ''}"></div>
             </div>
-            <div><label>Значение</label><input class="clue-value" value="${value}" placeholder="assets/photo.jpg"></div>
-            <div><label>Подпись</label><input class="clue-caption" value="${caption}" placeholder="Подпись"></div>
+            <div><label>Значение</label><input class="clue-value" value="${clue?.value || ''}"></div>
+            <div><label>Подпись</label><input class="clue-caption" value="${clue?.caption || ''}"></div>
             <div class="clue-row">
-                <div><label>Вопрос</label><input class="clue-question" value="${question}" placeholder="Вопрос"></div>
-                <div><label>Ответ</label><input class="clue-answer" value="${answer}" placeholder="Ответ"></div>
+                <div><label>Вопрос</label><input class="clue-question" value="${clue?.question || ''}"></div>
+                <div><label>Ответ</label><input class="clue-answer" value="${clue?.answer || ''}"></div>
             </div>
         </div>
     `;
 }
 
-// ============================================================
-//  СОХРАНЕНИЕ
-// ============================================================
 async function saveQuest() {
     const title = document.getElementById('fTitle').value.trim();
     const desc = document.getElementById('fDesc').value.trim();
@@ -234,82 +179,145 @@ async function saveQuest() {
     const isPaid = document.getElementById('fIsPaid').checked;
     const price = parseInt(document.getElementById('fPrice').value) || 0;
     const coords = document.getElementById('fCoords').value.trim();
-
     if (!title) { alert('Введите название'); return; }
-
     const blocks = document.querySelectorAll('.clue-block');
     const clues = [];
-    let ok = true;
-    blocks.forEach(block => {
+    for (const block of blocks) {
         const type = block.querySelector('.clue-type').value;
         const value = block.querySelector('.clue-value').value.trim();
-        const caption = block.querySelector('.clue-caption').value.trim();
-        const code = block.querySelector('.clue-code').value.trim() || `CODE-${String(Math.floor(Math.random()*10000)).padStart(4,'0')}`;
-        const question = block.querySelector('.clue-question').value.trim();
-        const answer = block.querySelector('.clue-answer').value.trim();
-        if (!value) { ok = false; return; }
-        clues.push({ type, value, caption, code, question, answer });
-    });
-    if (!ok) { alert('Заполните все улики'); return; }
-    if (clues.length === 0) { alert('Добавьте улики'); return; }
-
-    const questData = {
-        title,
-        description: desc,
-        level,
-        is_paid: isPaid,
-        price: isPaid ? price : 0,
-        final_coords: coords
-    };
-
-    try {
-        const client = getSupabaseClient();
-        await waitForSupabase();
-        let questId;
-        if (editingId) {
-            await client.from('quests').update(questData).eq('id', editingId);
-            await client.from('clues').delete().eq('quest_id', editingId);
-            questId = editingId;
-        } else {
-            const { data } = await client.from('quests').insert([questData]).select();
-            questId = data[0].id;
-        }
-        if (clues.length > 0) {
-            const cluesWithQuest = clues.map((c, i) => ({ ...c, quest_id: questId, order_index: i }));
-            await client.from('clues').insert(cluesWithQuest);
-        }
-        document.querySelector('.modal-overlay').remove();
-        alert('✅ Квест сохранён!');
-        loadList();
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
+        if (!value) { alert('Заполните все улики'); return; }
+        clues.push({
+            type,
+            value,
+            caption: block.querySelector('.clue-caption').value.trim(),
+            code: block.querySelector('.clue-code').value.trim() || `CODE-${Date.now()}`,
+            question: block.querySelector('.clue-question').value.trim(),
+            answer: block.querySelector('.clue-answer').value.trim()
+        });
     }
+    if (clues.length === 0) { alert('Добавьте улики'); return; }
+    const data = { title, description: desc, level, is_paid: isPaid, price, final_coords: coords, clues };
+    try {
+        if (editingQuestId) await updateQuest(editingQuestId, data);
+        else await addQuest(data);
+        document.querySelector('.modal-overlay').remove();
+        alert('✅ Сохранено');
+        loadQuests();
+    } catch (e) { alert('❌ Ошибка: ' + e.message); }
+}
+
+async function deleteQuestItem(id) {
+    if (!confirm('Удалить?')) return;
+    try {
+        await deleteQuest(id);
+        loadQuests();
+    } catch (e) { alert('❌ Ошибка: ' + e.message); }
 }
 
 // ============================================================
-//  УДАЛЕНИЕ
+//  НОВОСТИ
 // ============================================================
-async function deleteQuest(id) {
-    if (!confirm('Удалить квест?')) return;
+async function renderNews() {
+    const container = document.getElementById('adminTabContent');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+            <h3 style="color:#fff;">📰 Новости</h3>
+            <button id="addNewsBtn">➕ Добавить</button>
+        </div>
+        <div id="newsList"></div>
+    `;
+    document.getElementById('addNewsBtn').onclick = () => openNewsModal();
+    await loadNews();
+}
+
+async function loadNews() {
+    const list = document.getElementById('newsList');
     try {
-        const client = getSupabaseClient();
-        await waitForSupabase();
-        await client.from('clues').delete().eq('quest_id', id);
-        await client.from('quests').delete().eq('id', id);
-        alert('✅ Удалено');
-        loadList();
-    } catch (e) {
-        alert('❌ Ошибка: ' + e.message);
+        const news = await getNews();
+        if (!news || news.length === 0) {
+            list.innerHTML = '<p style="color:#5a6a80;">Нет новостей</p>';
+            return;
+        }
+        let html = '';
+        for (const item of news) {
+            html += `
+                <div class="admin-item">
+                    <div class="info"><div class="title">${item.title}</div><div class="sub">${new Date(item.date).toLocaleDateString()}</div></div>
+                    <div class="actions">
+                        <button class="edit-news" data-id="${item.id}">✏️</button>
+                        <button class="delete-news danger" data-id="${item.id}">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }
+        list.innerHTML = html;
+        list.querySelectorAll('.edit-news').forEach(btn => btn.onclick = () => openNewsModal(parseInt(btn.dataset.id)));
+        list.querySelectorAll('.delete-news').forEach(btn => btn.onclick = () => deleteNewsItem(parseInt(btn.dataset.id)));
+    } catch (e) { list.innerHTML = `<p style="color:#ff6b6b;">Ошибка: ${e.message}</p>`; }
+}
+
+function openNewsModal(id = null) {
+    editingNewsId = id;
+    let item = null;
+    if (id) {
+        getNews().then(news => {
+            item = news.find(n => n.id === id);
+            renderNewsModal(item);
+        });
+    } else {
+        renderNewsModal(null);
     }
+}
+
+function renderNewsModal(item) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <h3>${item ? '✏️ Редактировать' : '➕ Новая новость'}</h3>
+            <div class="field"><label>Заголовок</label><input id="nTitle" value="${item?.title || ''}"></div>
+            <div class="field"><label>Превью</label><textarea id="nPreview" rows="2">${item?.preview || ''}</textarea></div>
+            <div class="field"><label>Текст</label><textarea id="nContent" rows="5">${item?.content || ''}</textarea></div>
+            <div class="field"><label>Картинка</label><input id="nImage" value="${item?.image || ''}" placeholder="https://..."></div>
+            <div class="modal-actions">
+                <button class="cancel" id="closeNewsModal">Отмена</button>
+                <button class="save" id="saveNewsBtn">💾 Сохранить</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('closeNewsModal').onclick = () => modal.remove();
+    document.getElementById('saveNewsBtn').onclick = saveNewsItem;
+}
+
+async function saveNewsItem() {
+    const title = document.getElementById('nTitle').value.trim();
+    const preview = document.getElementById('nPreview').value.trim();
+    const content = document.getElementById('nContent').value.trim();
+    const image = document.getElementById('nImage').value.trim();
+    if (!title) { alert('Введите заголовок'); return; }
+    if (!content) { alert('Введите текст'); return; }
+    try {
+        if (editingNewsId) await updateNews(editingNewsId, { title, content, preview, image });
+        else await addNews({ title, content, preview, image });
+        document.querySelector('.modal-overlay').remove();
+        alert('✅ Сохранено');
+        loadNews();
+    } catch (e) { alert('❌ Ошибка: ' + e.message); }
+}
+
+async function deleteNewsItem(id) {
+    if (!confirm('Удалить?')) return;
+    try {
+        await deleteNews(id);
+        loadNews();
+    } catch (e) { alert('❌ Ошибка: ' + e.message); }
 }
 
 // ============================================================
 //  СТАРТ
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-        showPanel();
-    } else {
-        showLogin();
-    }
+    if (sessionStorage.getItem('adminLoggedIn') === 'true') showAdminPanel();
+    else showLogin();
 });
