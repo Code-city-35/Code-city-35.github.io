@@ -67,18 +67,8 @@
         <!-- Сюда box.js вставит содержимое -->
     </div>
 
-    <script src="js/boxes-data.js"></script>
-    <script src="js/box.js"></script>
-    <script>
-        console.log('Страница загружена, box.js подключён');
-        // Проверяем, что элементы имеют классы
-        setTimeout(() => {
-            const lines = document.querySelectorAll('.line');
-            console.log('Найдено .line элементов:', lines.length);
-            if (lines.length === 0) {
-                console.warn('Нет элементов с классом .line — возможно, box.js не сгенерировал HTML');
-            }
-        }, 1000);
-    </script>
+    <script type="module" src="js/box.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/quests-data.js"></script>
 </body>
 </html>
