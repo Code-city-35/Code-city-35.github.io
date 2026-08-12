@@ -1,12 +1,8 @@
 // ============================================================
-//  quests-data.js — работа с квестами и уликами через Supabase
+//  quests-data.js — работа с квестами и уликами (Supabase + localStorage)
 // ============================================================
 
 import { getSupabaseClient, isSupabaseReady, waitForSupabase } from './supabase-client.js';
-
-// ============================================================
-//  LOCALSTORAGE (fallback)
-// ============================================================
 
 const STORAGE_KEY = 'questsData';
 
@@ -45,17 +41,13 @@ function saveLocalQuests(quests) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(quests));
 }
 
-function getLocalQuestById(id) {
-    return getLocalQuests().find(q => q.id === id);
-}
-
 function generateLocalId() {
     const quests = getLocalQuests();
     return quests.length > 0 ? Math.max(...quests.map(q => q.id)) + 1 : 1;
 }
 
 // ============================================================
-//  ПУБЛИЧНЫЕ ФУНКЦИИ (сначала Supabase, потом localStorage)
+//  ПУБЛИЧНЫЕ ФУНКЦИИ
 // ============================================================
 
 export async function getQuests() {
@@ -68,7 +60,7 @@ export async function getQuests() {
                 .select('*')
                 .order('id', { ascending: true });
             if (error) throw error;
-            // Для каждого квеста загружаем улики
+            // Загружаем улики для каждого квеста
             const quests = await Promise.all(data.map(async (q) => {
                 const cluesData = await getCluesByQuestId(q.id);
                 return { ...q, clues: cluesData };
@@ -96,12 +88,11 @@ export async function getCluesByQuestId(questId) {
             return data || [];
         } catch (e) {
             console.warn('⚠️ Ошибка загрузки улик из Supabase', e);
-            // fallback: если квест в localStorage, возвращаем его улики
-            const local = getLocalQuestById(questId);
+            const local = getLocalQuests().find(q => q.id === questId);
             return local ? local.clues : [];
         }
     } else {
-        const local = getLocalQuestById(questId);
+        const local = getLocalQuests().find(q => q.id === questId);
         return local ? local.clues : [];
     }
 }
@@ -139,27 +130,23 @@ export async function addQuest(questData) {
                 if (cError) throw cError;
             }
 
-            // Возвращаем полный объект
             return { ...quest[0], clues: clues || [] };
         } catch (e) {
-            console.warn('⚠️ Ошибка добавления квеста в Supabase, сохраняем в localStorage', e);
-            // fallback: сохраняем локально
-            const localQuests = getLocalQuests();
-            const newId = generateLocalId();
-            const newQuest = { ...questData, id: newId };
-            localQuests.push(newQuest);
-            saveLocalQuests(localQuests);
-            return newQuest;
+            console.warn('⚠️ Ошибка добавления в Supabase, сохраняем в localStorage', e);
+            return saveLocalQuest(questData);
         }
     } else {
-        // Только localStorage
-        const localQuests = getLocalQuests();
-        const newId = generateLocalId();
-        const newQuest = { ...questData, id: newId };
-        localQuests.push(newQuest);
-        saveLocalQuests(localQuests);
-        return newQuest;
+        return saveLocalQuest(questData);
     }
+}
+
+function saveLocalQuest(questData) {
+    const quests = getLocalQuests();
+    const newId = generateLocalId();
+    const newQuest = { ...questData, id: newId };
+    quests.push(newQuest);
+    saveLocalQuests(quests);
+    return newQuest;
 }
 
 export async function updateQuest(id, questData) {
@@ -194,23 +181,21 @@ export async function updateQuest(id, questData) {
 
             return { ...questWithoutClues, id, clues: clues || [] };
         } catch (e) {
-            console.warn('⚠️ Ошибка обновления квеста в Supabase, обновляем в localStorage', e);
-            // fallback
-            const localQuests = getLocalQuests();
-            const index = localQuests.findIndex(q => q.id === id);
-            if (index === -1) return null;
-            localQuests[index] = { ...questData, id };
-            saveLocalQuests(localQuests);
-            return localQuests[index];
+            console.warn('⚠️ Ошибка обновления в Supabase, обновляем в localStorage', e);
+            return updateLocalQuest(id, questData);
         }
     } else {
-        const localQuests = getLocalQuests();
-        const index = localQuests.findIndex(q => q.id === id);
-        if (index === -1) return null;
-        localQuests[index] = { ...questData, id };
-        saveLocalQuests(localQuests);
-        return localQuests[index];
+        return updateLocalQuest(id, questData);
     }
+}
+
+function updateLocalQuest(id, questData) {
+    const quests = getLocalQuests();
+    const index = quests.findIndex(q => q.id === id);
+    if (index === -1) return null;
+    quests[index] = { ...questData, id };
+    saveLocalQuests(quests);
+    return quests[index];
 }
 
 export async function deleteQuest(id) {
@@ -218,7 +203,6 @@ export async function deleteQuest(id) {
     if (isSupabaseReady()) {
         try {
             const client = getSupabaseClient();
-            // Улики удалятся каскадно
             const { error } = await client
                 .from('quests')
                 .delete()
@@ -226,37 +210,25 @@ export async function deleteQuest(id) {
             if (error) throw error;
             return true;
         } catch (e) {
-            console.warn('⚠️ Ошибка удаления квеста из Supabase, удаляем из localStorage', e);
-            // fallback
-            let localQuests = getLocalQuests();
-            localQuests = localQuests.filter(q => q.id !== id);
-            saveLocalQuests(localQuests);
-            return true;
+            console.warn('⚠️ Ошибка удаления из Supabase, удаляем из localStorage', e);
+            return deleteLocalQuest(id);
         }
     } else {
-        let localQuests = getLocalQuests();
-        localQuests = localQuests.filter(q => q.id !== id);
-        saveLocalQuests(localQuests);
-        return true;
+        return deleteLocalQuest(id);
     }
 }
 
-// Для совместимости со старыми функциями
-export function getBoxes() {
-    // возвращаем промис, но в старом коде синхронно, поэтому обернём
-    return getQuests();
-}
-
-export function getBoxById(id) {
-    return getQuestById(id);
-}
-
-export function saveBoxes(quests) {
-    // в новой версии используем add/update, но для совместимости
-    // просто сохраняем в localStorage
+function deleteLocalQuest(id) {
+    let quests = getLocalQuests();
+    quests = quests.filter(q => q.id !== id);
     saveLocalQuests(quests);
+    return true;
 }
 
-export function generateBoxId() {
-    return generateLocalId();
-}
+// ============================================================
+//  СОВМЕСТИМОСТЬ СО СТАРЫМ КОДОМ
+// ============================================================
+export function getBoxes() { return getQuests(); }
+export function getBoxById(id) { return getQuestById(id); }
+export function saveBoxes(quests) { saveLocalQuests(quests); }
+export function generateBoxId() { return generateLocalId(); }
